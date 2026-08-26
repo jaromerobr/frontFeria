@@ -46,13 +46,13 @@ de imagen" del generador. Pegar solo el texto no sirve para nada.
 |---|---|---|
 | Rubber Hose | Caricatura de los anos 30, crema y rojo | `refs/rubber-hose.jpg` |
 | Mundial 2026 | Cromo de album de la seleccion de Ecuador | `refs/mundial.jpg` |
-| Cabezon | Cabeza gigante, cuerpo chiquito | falta |
-| Muneco 3D | Personaje de pelicula animada | falta |
+| Cabezon | Cabeza gigante, cuerpo chiquito | `refs/cabezon.jpg` |
+| Muneco 3D | Personaje de pelicula animada | `refs/animado.jpg` |
 
-Las referencias tambien se muestran en el selector del totem, con la etiqueta "Ejemplo".
-Para agregar las que faltan: generar la imagen con su prompt y guardarla como
-`public/styles/cabezon.jpg` y `public/styles/muneco-3d.jpg` (720 px de ancho basta).
-Aparecen solas, sin tocar codigo.
+Las cuatro se muestran en el selector del totem con la etiqueta "Ejemplo", junto al aviso
+de que cada foto sale distinta. Para cambiar una: generar la imagen con su prompt y
+guardarla como `public/styles/<id>.jpg` (720 px de ancho basta). Aparece sola, sin tocar
+codigo.
 
 Solo **Rubber Hose** es retro. Los otros tres son actuales a proposito.
 

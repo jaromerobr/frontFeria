@@ -128,7 +128,6 @@ const STYLE_DEFS = [
     name: 'Cabezon',
     tagline: 'Cabeza gigante, cuerpo chiquito',
     swatch: ['#ffcf6b', '#ff7a3d', '#3d5afe'],
-    // Falta la referencia: dejar public/styles/cabezon.jpg y aparece sola.
     reference: '/styles/cabezon.jpg',
     local: {
       posterize: 6,
@@ -155,7 +154,6 @@ const STYLE_DEFS = [
     name: 'Muneco 3D',
     tagline: 'Como de pelicula animada',
     swatch: ['#7fd1ff', '#ffb3c7', '#ffd97d'],
-    // Falta la referencia: dejar public/styles/muneco-3d.jpg y aparece sola.
     reference: '/styles/muneco-3d.jpg',
     local: {
       posterize: 9,

@@ -7,6 +7,9 @@ envia al correo de la persona.
 
 Funciona **completa sin backend** (modo `fake`) y **sin camara** (modo `demo`).
 
+> **Backend:** todo lo que hace falta para conectarlo esta en **[INTEGRACION.md](INTEGRACION.md)**.
+> Es un solo documento, no hay que leer el resto del proyecto.
+
 ---
 
 ## 1. Arranque rapido
@@ -522,6 +525,8 @@ equipo limpio al terminar el evento.
 - [x] Sonido de cuenta regresiva, obturador y confirmacion
 - [x] Cola de reintento si se cae la red
 - [x] Layout verificado en 1080x1920 (vertical), 1920x1080 y 1280x800
+- [x] Imagenes de referencia de los 4 estilos en el selector
+- [x] Documento de integracion para el backend ([INTEGRACION.md](INTEGRACION.md))
 
 ### Falta
 
@@ -532,7 +537,6 @@ equipo limpio al terminar el evento.
       publico. Necesita que el backend exponga una URL publica de la foto.
 - [ ] **Pantalla de ajustes oculta** (5 toques en una esquina): cambiar duracion del
       conteo, modo de camara y URL del backend sin recompilar.
-- [ ] Referencias que faltan: `public/styles/cabezon.jpg` y `public/styles/muneco-3d.jpg`.
 - [ ] Reemplazar `public/demo-photo.svg` por **una foto real de una cara**: hoy las
       miniaturas de los estilos sin referencia se generan sobre un dibujo morado.
 - [ ] Logos reales de auspiciantes y logo oficial de NODO.

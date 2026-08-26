@@ -62,6 +62,11 @@ export default function StyleScreen({ sampleSrc, onSelect, onBack, currentId = n
       <p className="lead lead--small">
         {hasOwnPhoto ? 'Asi quedaria tu foto en cada estilo' : 'Toca el que mas te guste'}
       </p>
+      {/* Las imagenes son ejemplos hechos con IA: nadie va a salir igual
+          que en la tarjeta, y conviene decirlo antes de que lo pregunten. */}
+      {!hasOwnPhoto && (
+        <p className="hint">Son ejemplos: tu foto sera unica</p>
+      )}
 
       <div className="style-grid">
         {PHOTO_STYLES.map((style) => (
@@ -96,7 +101,7 @@ function StyleArt({ style, preview, preferReference }) {
 
   if (showReference) {
     return (
-      <span className="style-card__art">
+      <span className="style-card__art style-card__art--reference">
         <img src={style.reference} alt="" onError={() => setRefFailed(true)} />
         <span className="style-card__badge">Ejemplo</span>
       </span>
