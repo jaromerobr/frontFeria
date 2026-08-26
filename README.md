@@ -470,8 +470,10 @@ solo, asi que sin esto el formulario es imposible de llenar en el hardware real.
 
 - Esta hecho **dentro de la app**, no con el teclado del sistema: no depende de que
   alguien haya instalado `onboard` o `squeekboard` en el Jetson.
-- Tres distribuciones segun el campo: texto, correo (con `@` y los cuatro dominios mas
-  comunes) y numerica para el celular.
+- Tres distribuciones segun el campo: texto, correo (con `@`, los cuatro dominios mas
+  comunes y la tecla "punto") y numerica para el celular.
+- **Numeros siempre visibles** y una segunda capa de simbolos (`?#$`): muchos correos
+  llevan numeros, y obligar a cambiar de capa para escribir un 1 es una molestia.
 - Los campos son `<div>`, no `<input>`: asi no aparece ningun cursor del sistema ni un
   segundo teclado, y la unica entrada posible es la nuestra.
 - Cada tecla usa `onPointerDown` con `preventDefault()`. Con `onClick` el campo perderia
@@ -479,6 +481,17 @@ solo, asi que sin esto el formulario es imposible de llenar en el hardware real.
 - Con el teclado abierto la pantalla **esconde la foto** y compacta todo, porque si no la
   ultima fila de teclas queda fuera de la pantalla y no se puede ni cerrar el teclado.
   En vertical el teclado se ancla abajo, donde cae la mano.
+
+**Tambien funciona un teclado fisico**, por si alguien conecta uno por USB para una demo o
+para llenar el formulario mas rapido. Como los campos son `<div>`, el navegador no escribe
+solo: [UserForm.jsx](src/components/UserForm.jsx) escucha las teclas a mano.
+
+| Tecla | Que hace |
+|---|---|
+| Cualquier caracter | Escribe en el campo activo. **Si no hay ninguno activo, salta al primer campo vacio**: quien tiene teclado espera escribir de una, sin tocar la pantalla antes |
+| `Backspace` | Borra el ultimo caracter |
+| `Enter` / `Tab` | Pasa al siguiente campo; en el ultimo, cierra el teclado |
+| `Escape` | Cierra el teclado |
 
 Verificado en 1280x800, 1920x1080 y **1080x1920** (el caso real del totem).
 

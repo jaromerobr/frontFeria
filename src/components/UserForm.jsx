@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import BigButton from './BigButton.jsx';
 import OnScreenKeyboard from './OnScreenKeyboard.jsx';
 import { CONSENT_TEXT } from '../config.js';
@@ -8,6 +8,8 @@ const FIELDS = {
   email: { label: 'Correo electronico', layout: 'email' },
   phone: { label: 'Celular', layout: 'tel' },
 };
+
+const FIELD_KEYS = Object.keys(FIELDS);
 
 /**
  * Formulario de datos.
@@ -50,6 +52,73 @@ export default function UserForm({ onSubmit, onBack, onTypingChange }) {
     if (!active) return;
     setValues((v) => ({ ...v, [active]: v[active].slice(0, -1) }));
   };
+
+  /**
+   * TECLADO FISICO.
+   *
+   * En el totem no hay ninguno, pero puede aparecer: alguien conecta uno
+   * por USB para probar, o para llenar el formulario mas rapido en una
+   * demo. Como los campos son <div> y no <input>, el navegador no escribe
+   * nada solo; hay que escuchar las teclas a mano.
+   *
+   * Si nadie ha tocado un campo todavia, la primera tecla escrita salta
+   * al primer campo vacio: quien tiene teclado espera poder escribir de
+   * una, sin tocar la pantalla primero.
+   */
+  const stateRef = useRef({ active, values });
+  stateRef.current = { active, values };
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      // Atajos del sistema (Ctrl+C, Alt+Tab...): no son escritura.
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+      const { active: activeField, values: currentValues } = stateRef.current;
+      let field = activeField;
+
+      if (event.key === 'Escape') {
+        closeKeyboard();
+        return;
+      }
+
+      if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault();
+        const index = FIELD_KEYS.indexOf(field);
+        const next = FIELD_KEYS[index + 1];
+        if (next) focusField(next);
+        else closeKeyboard();
+        return;
+      }
+
+      if (event.key === 'Backspace') {
+        if (!field) return;
+        event.preventDefault();
+        // Se borra aqui y no con backspace(): esa funcion lee `active`
+        // del render en que se creo, que al montar el efecto era null.
+        // El campo bueno es el de stateRef.
+        setValues((v) => ({ ...v, [field]: v[field].slice(0, -1) }));
+        return;
+      }
+
+      // Una tecla imprimible: letras, numeros, simbolos, espacio.
+      if (event.key.length !== 1) return;
+      event.preventDefault();
+
+      if (!field) {
+        field = FIELD_KEYS.find((k) => !currentValues[k]) ?? FIELD_KEYS[0];
+        focusField(field);
+      }
+
+      setValues((v) => ({ ...v, [field]: v[field] + event.key }));
+      setErrors((e) => ({ ...e, [field]: null }));
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+    // Las funciones de arriba no cambian de identidad entre renders de
+    // forma relevante: el estado se lee siempre desde stateRef.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = (event) => {
     event.preventDefault();

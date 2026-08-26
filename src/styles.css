@@ -1051,3 +1051,26 @@ body {
   .developing__gray { display: none; }
   .developing__scan { display: none; }
 }
+
+/* Pantallas bajas (portatiles de 800 px): con la fila de numeros y la
+   de dominios, el teclado de correo es el mas alto de todos y se salia
+   por abajo. Aqui se aprieta lo justo para que la fila de "Listo" quede
+   dentro: si se sale, no se puede ni cerrar el teclado. */
+@media (max-height: 880px) and (orientation: landscape) {
+  .screen--form.is-typing .keyboard {
+    gap: clamp(0.18rem, 0.5vmin, 0.4rem);
+    padding: clamp(0.3rem, 0.8vmin, 0.6rem);
+  }
+
+  .screen--form.is-typing .keyboard__row {
+    gap: clamp(0.18rem, 0.5vmin, 0.4rem);
+  }
+
+  .screen--form.is-typing .key {
+    min-height: 36px;
+    min-width: 36px;
+    font-size: clamp(0.75rem, 1.7vmin, 1.1rem);
+  }
+
+  .screen--form.is-typing .key--hint { font-size: clamp(0.6rem, 1.2vmin, 0.9rem); }
+}

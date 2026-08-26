@@ -10,13 +10,18 @@
  *  sistema: asi no depende de que alguien haya instalado onboard
  *  o squeekboard en el Jetson, y el estilo combina con el totem.
  *
+ *  Si ademas hay un teclado fisico conectado, tambien funciona:
+ *  eso se maneja en UserForm.jsx, no aqui.
+ *
  *  Detalle importante: cada tecla usa `onPointerDown` con
- *  preventDefault(). Si se usara `onClick`, el input perderia el
+ *  preventDefault(). Si se usara `onClick`, el campo perderia el
  *  foco al tocar la tecla y el teclado se cerraria solo.
  * ============================================================
  */
 
 import { useState } from 'react';
+
+const DIGITS_ROW = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 
 const LETTERS = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
@@ -24,7 +29,14 @@ const LETTERS = [
   ['z', 'x', 'c', 'v', 'b', 'n', 'm', '.', '_', '-'],
 ];
 
-const DIGITS = [
+/** Segunda capa: todo lo que no cabe en la de letras. */
+const SYMBOLS = [
+  ['@', '#', '$', '%', '&', '*', '(', ')', '+', '='],
+  ['-', '_', '/', '\\', ':', ';', '!', '?', '"', "'"],
+  [',', '.', '<', '>', '[', ']', '{', '}', '~', '|'],
+];
+
+const NUMPAD = [
   ['1', '2', '3'],
   ['4', '5', '6'],
   ['7', '8', '9'],
@@ -42,8 +54,9 @@ const DOMAINS = ['@gmail.com', '@hotmail.com', '@outlook.com', '@yahoo.com'];
  */
 export default function OnScreenKeyboard({ layout, onKey, onBackspace, onClose }) {
   const [caps, setCaps] = useState(false);
+  const [symbols, setSymbols] = useState(false);
 
-  // Evita que el input pierda el foco al tocar una tecla.
+  // Evita que el campo pierda el foco al tocar una tecla.
   const press = (fn) => (event) => {
     event.preventDefault();
     fn();
@@ -53,8 +66,8 @@ export default function OnScreenKeyboard({ layout, onKey, onBackspace, onClose }
     return (
       <div className="keyboard keyboard--numeric" role="group" aria-label="Teclado numerico">
         <div className="keyboard__pad">
-          {DIGITS.flat().map((d) => (
-            <Key key={d} onPress={press(() => onKey(d))} wide={d === '0'}>
+          {NUMPAD.flat().map((d) => (
+            <Key key={d} onPress={press(() => onKey(d))}>
               {d}
             </Key>
           ))}
@@ -70,12 +83,12 @@ export default function OnScreenKeyboard({ layout, onKey, onBackspace, onClose }
   }
 
   const isEmail = layout === 'email';
+  const rows = symbols ? SYMBOLS : LETTERS;
 
   return (
     <div className="keyboard" role="group" aria-label="Teclado">
       {isEmail && (
         <div className="keyboard__row keyboard__row--shortcuts">
-          <Key onPress={press(() => onKey('@'))}>@</Key>
           {DOMAINS.map((d) => (
             <Key key={d} onPress={press(() => onKey(d))} variant="hint">
               {d}
@@ -84,22 +97,32 @@ export default function OnScreenKeyboard({ layout, onKey, onBackspace, onClose }
         </div>
       )}
 
-      {LETTERS.map((row, i) => (
+      {/* Los numeros van siempre visibles: muchos correos los llevan y
+          obligar a cambiar de capa para escribir un 1 es una molestia. */}
+      <div className="keyboard__row">
+        {DIGITS_ROW.map((d) => (
+          <Key key={d} onPress={press(() => onKey(d))}>
+            {d}
+          </Key>
+        ))}
+      </div>
+
+      {rows.map((row, i) => (
         <div className="keyboard__row" key={i}>
-          {i === 2 && (
+          {i === 2 && !symbols && (
             <Key onPress={press(() => setCaps((c) => !c))} variant={caps ? 'on' : 'mod'}>
               ⇧
             </Key>
           )}
-          {row.map((letter) => (
+          {row.map((char) => (
             <Key
-              key={letter}
+              key={char}
               onPress={press(() => {
-                onKey(caps ? letter.toUpperCase() : letter);
+                onKey(caps && !symbols ? char.toUpperCase() : char);
                 if (caps) setCaps(false); // mayuscula de una sola letra
               })}
             >
-              {caps ? letter.toUpperCase() : letter}
+              {caps && !symbols ? char.toUpperCase() : char}
             </Key>
           ))}
           {i === 2 && (
@@ -111,14 +134,17 @@ export default function OnScreenKeyboard({ layout, onKey, onBackspace, onClose }
       ))}
 
       <div className="keyboard__row">
-        {!isEmail && (
+        <Key onPress={press(() => setSymbols((v) => !v))} variant="mod">
+          {symbols ? 'ABC' : '?#$'}
+        </Key>
+        {isEmail ? (
+          <>
+            <Key onPress={press(() => onKey('@'))}>@</Key>
+            <Key onPress={press(() => onKey('.'))}>punto</Key>
+          </>
+        ) : (
           <Key onPress={press(() => onKey(' '))} variant="space">
             espacio
-          </Key>
-        )}
-        {isEmail && (
-          <Key onPress={press(() => onKey('.'))} variant="space">
-            punto
           </Key>
         )}
         <Key onPress={press(onClose)} variant="ok">
@@ -129,11 +155,11 @@ export default function OnScreenKeyboard({ layout, onKey, onBackspace, onClose }
   );
 }
 
-function Key({ children, onPress, variant = '', wide = false }) {
+function Key({ children, onPress, variant = '' }) {
   return (
     <button
       type="button"
-      className={`key ${variant ? `key--${variant}` : ''} ${wide ? 'key--wide' : ''}`}
+      className={`key ${variant ? `key--${variant}` : ''}`}
       onPointerDown={onPress}
     >
       {children}
