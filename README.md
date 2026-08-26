@@ -29,9 +29,10 @@ foto de prueba (`public/demo-photo.svg`); el envio es simulado (2 s) y siempre d
 ## 2. Flujo de pantallas
 
 ```
-WELCOME ──COMENZAR──> COUNTDOWN ──0──> PROCESSING ──> PREVIEW ──ACEPTAR──> FORM
-                          ▲                                 │                 │
-                          └────────── REPETIR ──────────────┘              ENVIAR
+WELCOME ──> GRUPO ──> ESTILO ──> COUNTDOWN ──0──> PROCESSING ──> PREVIEW ──> FORM
+                        ▲   ▲                                    │   │          │
+                        │   └────────── REPETIR ─────────────────┘   │       ENVIAR
+                        └───────────── OTRO ESTILO ──────────────────┘
                                                              │
                                                              ▼
                                      WELCOME <──5 s── SUCCESS <── SENDING
@@ -51,6 +52,8 @@ Todo vive en [App.jsx](src/App.jsx): un `useState` con el nombre de la pantalla 
 ```
 src/
 ├── config.js              <- TODAS las variables ajustables (leer primero)
+├── photoGroups.js         <- solo / pareja / familia / ninos
+├── photoStyles.js         <- los 16 estilos y sus prompts
 ├── kiosk.js               <- pantalla completa, bloqueo de F5/menu contextual
 ├── App.jsx                <- maquina de estados + reset de sesion
 ├── styles.css             <- estilos (escalan con clamp a cualquier monitor)
@@ -397,7 +400,39 @@ Recomendacion para el material grafico:
 
 ---
 
-## 13. Selector de estilos
+## 13. Con quien sale la foto, y los estilos
+
+Antes del estilo, el totem pregunta **quien sale en la foto**: solo, en pareja, en familia
+o ninos ([photoGroups.js](src/photoGroups.js)). No es una pregunta decorativa, cambia tres
+cosas de verdad:
+
+1. **Que estilos se ofrecen.** Un cromo de futbol no funciona con cinco personas y una
+   postal de San Valentin no funciona con una sola. Cada estilo declara en que grupos
+   aparece; varios estan en mas de uno.
+2. **El encuadre.** La guia en pantalla se ensancha segun cuanta gente entra. En el grupo
+   de ninos ademas **baja**, porque los ninos son mas bajos y con el ovalo de adulto salen
+   cortados por abajo.
+3. **La cuenta regresiva.** 10 s solo, 12 s en pareja o ninos, 15 s en familia. Una familia
+   de cinco tarda mas en acomodarse, y 10 segundos que le sobran a uno son pocos para cinco.
+
+Ademas se le dice a la IA cuanta gente hay, y se le prohibe agregar o quitar personas: es
+la falla favorita de los modelos en fotos de grupo.
+
+| Grupo | Estilos |
+|---|---|
+| **Solo** | Mundial 2026, Guerrero Anime, Astronauta, Cabezon |
+| **En pareja** | San Valentin, En Paris, Montana Rusa, Escena de Cine, Rubber Hose, En la Feria |
+| **En familia** | Rubber Hose, Caricatura Amarilla, En la Feria, Mision Espacial, Parque Magico, Muneco 3D |
+| **Ninos** | Cabezon, Montana Rusa, En la Feria, Parque Magico, Muneco 3D, Super Heroes, Aventura Dino |
+
+> **Marcas registradas:** ningun prompt nombra Dragon Ball, los Simpson, Disney ni Mickey
+> Mouse. Estan escritos como descripciones de genero, por dos razones: es un evento publico
+> con auspiciantes, y los modelos rechazan o degradan los prompts con personajes
+> protegidos. El aire es el mismo y el resultado sale mejor.
+
+---
+
+## 14. Selector de estilos
 
 Cada tarjeta muestra **dos cosas distintas segun el momento**, y es a proposito:
 
@@ -412,8 +447,7 @@ Convencion de archivos: **`public/styles/<id>.jpg`**. Si el archivo no existe, l
 cae sola a la miniatura generada, asi que se pueden agregar referencias despues sin tocar
 codigo. Hoy faltan `cabezon.jpg` y `muneco-3d.jpg`.
 
-Despues de *Comenzar* aparece una pantalla con **4 estilos**: Rubber Hose (el unico
-retro), Mundial 2026 (cromo de la seleccion de Ecuador), Cabezon y Muneco 3D. Las miniaturas **no son
+Despues de elegir el grupo aparecen **solo los estilos de ese grupo**. Las miniaturas **no son
 imagenes guardadas**: se generan en el momento aplicando el filtro real, asi que si
 cambias un estilo, la tarjeta cambia sola.
 
@@ -433,7 +467,7 @@ Los prompts, como probarlos a mano y que recibe el backend estan en **[PROMPTS.m
 
 ---
 
-## 14. Barra de auspiciantes
+## 15. Barra de auspiciantes
 
 Banda inferior que se desplaza sin parar, **visible en todas las pantallas**
 ([SponsorBar.jsx](src/components/SponsorBar.jsx)).
@@ -458,7 +492,7 @@ lleguen los logos definitivos no se descuadra nada.
 
 ---
 
-## 15. Teclado, consentimiento, sonido y cola de reintentos
+## 16. Teclado, consentimiento, sonido y cola de reintentos
 
 Cuatro cosas que no se ven en una demo pero deciden si el totem aguanta un dia
 de feria.
@@ -526,7 +560,7 @@ equipo limpio al terminar el evento.
 
 ---
 
-## 16. La espera mientras se genera la imagen
+## 17. La espera mientras se genera la imagen
 
 Generar con Gemini tarda entre 5 y 20 segundos, y la persona esta parada mirando la
 pantalla. Un "Cargando..." ahi se hace eterno, asi que
@@ -555,7 +589,7 @@ avanzando. Una feria con fotos menos bonitas es mejor que una feria detenida.
 
 ---
 
-## 17. Que falta para tener el frontend completo
+## 18. Que falta para tener el frontend completo
 
 ### Hecho
 
@@ -568,6 +602,10 @@ avanzando. Una feria con fotos menos bonitas es mejor que una feria detenida.
 - [x] Documento de integracion para el backend ([INTEGRACION.md](INTEGRACION.md))
 
 ### Falta
+
+- [ ] **Imagenes de ejemplo de los 12 estilos nuevos.** Solo 4 de 16 tienen referencia; el
+      resto muestra la miniatura del filtro local, que no se parece a lo que dara la IA.
+      Se generan con su propio prompt y se guardan como `public/styles/<id>.jpg`.
 
 - [ ] **Probarlo en el monitor fisico del totem.** El layout esta verificado a la
       resolucion real, pero no sobre el vidrio: falta comprobar tamano real de las teclas

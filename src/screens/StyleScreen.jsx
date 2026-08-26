@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Screen from '../components/Screen.jsx';
 import BigButton from '../components/BigButton.jsx';
-import { PHOTO_STYLES } from '../photoStyles.js';
+import { stylesForGroup } from '../photoStyles.js';
 import { renderStylePreview } from '../services/photoEffect.js';
 import { STYLE_SAMPLE_PHOTO } from '../config.js';
 
@@ -29,9 +29,10 @@ import { STYLE_SAMPLE_PHOTO } from '../config.js';
  * @param {() => void} onBack
  * @param {string|null} currentId estilo ya elegido, si vuelve a entrar
  */
-export default function StyleScreen({ sampleSrc, onSelect, onBack, currentId = null }) {
+export default function StyleScreen({ group, sampleSrc, onSelect, onBack, currentId = null }) {
   const hasOwnPhoto = Boolean(sampleSrc);
   const sample = sampleSrc || STYLE_SAMPLE_PHOTO;
+  const styles = stylesForGroup(group.id);
   const [previews, setPreviews] = useState({});
 
   // Las miniaturas se calculan en el momento con el mismo filtro real,
@@ -40,9 +41,9 @@ export default function StyleScreen({ sampleSrc, onSelect, onBack, currentId = n
     let cancelled = false;
 
     (async () => {
-      for (const style of PHOTO_STYLES) {
+      for (const style of styles) {
         try {
-          const url = await renderStylePreview(sample, style, 300);
+          const url = await renderStylePreview(sample, style, 300, group.guide);
           if (cancelled) return;
           setPreviews((prev) => ({ ...prev, [style.id]: url }));
         } catch {
@@ -54,13 +55,18 @@ export default function StyleScreen({ sampleSrc, onSelect, onBack, currentId = n
     return () => {
       cancelled = true;
     };
-  }, [sample]);
+    // Se recalcula si cambia la foto de muestra o el grupo (que cambia
+    // tanto la lista de estilos como la guia de encuadre).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sample, group.id]);
 
   return (
     <Screen className="screen--styles">
       <h2 className="title">Elige tu estilo</h2>
       <p className="lead lead--small">
-        {hasOwnPhoto ? 'Asi quedaria tu foto en cada estilo' : 'Toca el que mas te guste'}
+        {hasOwnPhoto
+          ? 'Asi quedaria tu foto en cada estilo'
+          : `Estilos para ${group.name.toLowerCase()}`}
       </p>
       {/* Las imagenes son ejemplos hechos con IA: nadie va a salir igual
           que en la tarjeta, y conviene decirlo antes de que lo pregunten. */}
@@ -69,7 +75,7 @@ export default function StyleScreen({ sampleSrc, onSelect, onBack, currentId = n
       )}
 
       <div className="style-grid">
-        {PHOTO_STYLES.map((style) => (
+        {styles.map((style) => (
           <button
             key={style.id}
             type="button"

@@ -8,10 +8,12 @@ import { FACE_GUIDE } from '../config.js';
  * deteccion de rostro, y la IA recibe fotos parecidas entre si, en vez de
  * depender de si la persona se paro cerca o lejos.
  *
- * Usa el MISMO FACE_GUIDE que photoEffect.js: es un solo dato.
+ * La guia viene del grupo elegido (solo, pareja, familia, ninos): con mas
+ * gente se ensancha, y con ninos baja, porque si no salen cortados.
+ * Es el mismo dato que usa photoEffect.js para deformar.
  */
-export default function FaceGuide() {
-  const { cx, cy, w, h } = FACE_GUIDE;
+export default function FaceGuide({ guide = FACE_GUIDE }) {
+  const { cx, cy, w, h } = guide;
 
   return (
     <svg className="face-guide" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">

@@ -5,6 +5,7 @@ import Welcome from './screens/Welcome.jsx';
 import CountdownScreen from './screens/CountdownScreen.jsx';
 import PreviewScreen from './screens/PreviewScreen.jsx';
 import UserDataScreen from './screens/UserDataScreen.jsx';
+import GroupScreen from './screens/GroupScreen.jsx';
 import StyleScreen from './screens/StyleScreen.jsx';
 import SendingScreen from './screens/SendingScreen.jsx';
 import ProcessingScreen from './screens/ProcessingScreen.jsx';
@@ -17,6 +18,7 @@ import SponsorBar from './components/SponsorBar.jsx';
 import { capturePhoto, stopCamera } from './services/camera.js';
 import { generatePhoto } from './services/ai.js';
 import { DEFAULT_STYLE, getStyle } from './photoStyles.js';
+import { DEFAULT_GROUP, getGroup } from './photoGroups.js';
 import { initSound, playError, playSuccess } from './services/sound.js';
 import { enqueue, flushQueue } from './services/queue.js';
 import { sendPhoto } from './services/api.js';
@@ -41,6 +43,7 @@ import {
  */
 const SCREENS = {
   WELCOME: 'WELCOME',
+  GROUP: 'GROUP',
   STYLE: 'STYLE',
   COUNTDOWN: 'COUNTDOWN',
   PROCESSING: 'PROCESSING',
@@ -66,6 +69,7 @@ async function withMinimumWait(promise) {
 
 /** Pantallas donde el usuario puede quedarse quieto y abandonar el totem. */
 const IDLE_WATCHED = [
+  SCREENS.GROUP,
   SCREENS.STYLE,
   SCREENS.COUNTDOWN,
   SCREENS.PREVIEW,
@@ -78,6 +82,7 @@ export default function App() {
   const [photo, setPhoto] = useState(null); // foto ya ilustrada { dataUrl, blob }
   const [rawShot, setRawShot] = useState(null); // foto original, para cambiar de estilo
   const [style, setStyle] = useState(DEFAULT_STYLE);
+  const [group, setGroup] = useState(DEFAULT_GROUP);
   const [userData, setUserData] = useState(null); // { name, email, phone }
   const [errorMessage, setErrorMessage] = useState('');
   /** true si la foto quedo en la cola en vez de enviarse al momento. */
@@ -91,7 +96,7 @@ export default function App() {
    * personas de la cola ya se fueron y no hay nadie a quien avisar.
    */
   useEffect(() => {
-    const retry = () => flushQueue(sendPhoto, getStyle).catch(() => {});
+    const retry = () => flushQueue(sendPhoto, getStyle, getGroup).catch(() => {});
     retry();
     const id = setInterval(retry, QUEUE_RETRY_MS);
     window.addEventListener('online', retry);
@@ -108,6 +113,7 @@ export default function App() {
     setRawShot(null);
     setUserData(null);
     setStyle(DEFAULT_STYLE);
+    setGroup(DEFAULT_GROUP);
     setErrorMessage('');
     setWasQueued(false);
     setScreen(SCREENS.WELCOME);
@@ -128,6 +134,11 @@ export default function App() {
     setPhoto(null);
     setRawShot(null);
     setUserData(null);
+    setScreen(SCREENS.GROUP);
+  };
+
+  const handleGroupSelect = (chosen) => {
+    setGroup(chosen);
     setScreen(SCREENS.STYLE);
   };
 
@@ -146,7 +157,7 @@ export default function App() {
 
     setScreen(SCREENS.PROCESSING);
     try {
-      setPhoto(await withMinimumWait(generatePhoto(rawShot, chosen)));
+      setPhoto(await withMinimumWait(generatePhoto(rawShot, chosen, group)));
       setScreen(SCREENS.PREVIEW);
     } catch (err) {
       setErrorMessage(err.message || 'No se pudo aplicar el estilo.');
@@ -162,7 +173,7 @@ export default function App() {
       // Generar con IA tarda entre 5 y 20 segundos: la pantalla de
       // espera le muestra a la persona su propia foto revelandose.
       setScreen(SCREENS.PROCESSING);
-      const finished = await withMinimumWait(generatePhoto(shot, style));
+      const finished = await withMinimumWait(generatePhoto(shot, style, group));
       setPhoto(finished);
       setScreen(SCREENS.PREVIEW);
     } catch (err) {
@@ -184,7 +195,7 @@ export default function App() {
     setUserData(data);
     setScreen(SCREENS.SENDING);
     try {
-      await sendPhoto({ ...data, photo, style });
+      await sendPhoto({ ...data, photo, style, group });
       stopCamera();
       setWasQueued(false);
       playSuccess();
@@ -202,7 +213,7 @@ export default function App() {
    * quedarse parada esperando a que vuelva el wifi de la feria.
    */
   const handleSaveForLater = () => {
-    const saved = enqueue({ ...userData, photo, style });
+    const saved = enqueue({ ...userData, photo, style, group });
     if (!saved) {
       setErrorMessage('No hay espacio para guardar la foto en este equipo.');
       return;
@@ -234,18 +245,30 @@ export default function App() {
 
   function renderScreen() {
     switch (screen) {
+      case SCREENS.GROUP:
+        return <GroupScreen onSelect={handleGroupSelect} onBack={resetSession} />;
+
       case SCREENS.STYLE:
         return (
           <StyleScreen
+            group={group}
             sampleSrc={rawShot?.dataUrl}
             currentId={rawShot ? style.id : null}
             onSelect={handleStyleSelect}
-            onBack={rawShot ? () => setScreen(SCREENS.PREVIEW) : resetSession}
+            onBack={
+              rawShot ? () => setScreen(SCREENS.PREVIEW) : () => setScreen(SCREENS.GROUP)
+            }
           />
         );
 
       case SCREENS.COUNTDOWN:
-        return <CountdownScreen onFinish={handleCountdownFinish} onCancel={resetSession} />;
+        return (
+          <CountdownScreen
+            group={group}
+            onFinish={handleCountdownFinish}
+            onCancel={resetSession}
+          />
+        );
 
       case SCREENS.PROCESSING:
         return <ProcessingScreen rawSrc={rawShot?.dataUrl} styleName={style.name} />;

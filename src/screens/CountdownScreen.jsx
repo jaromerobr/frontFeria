@@ -3,6 +3,7 @@ import CameraPreview from '../components/CameraPreview.jsx';
 import FaceGuide from '../components/FaceGuide.jsx';
 import { useCountdown } from '../hooks/useCountdown.js';
 import { COUNTDOWN_SECONDS, BRAND } from '../config.js';
+import { DEFAULT_GROUP } from '../photoGroups.js';
 import { startCamera, hasLivePreview } from '../services/camera.js';
 import { playShutter, playTick, playTickUrgent } from '../services/sound.js';
 
@@ -16,7 +17,7 @@ import { playShutter, playTick, playTickUrgent } from '../services/sound.js';
  * El conteo NO arranca hasta que la camara esta dando imagen: si no,
  * la persona pierde los primeros 2 segundos mirando un cuadro negro.
  */
-export default function CountdownScreen({ onFinish, onCancel }) {
+export default function CountdownScreen({ onFinish, onCancel, group = DEFAULT_GROUP }) {
   const videoRef = useRef(null);
   const live = hasLivePreview();
   const [ready, setReady] = useState(!live);
@@ -49,7 +50,7 @@ export default function CountdownScreen({ onFinish, onCancel }) {
       <div className="stage__viewport">
         <CameraPreview ref={videoRef} live={live} />
         <div className="stage__vignette" />
-        {ready && !error && <FaceGuide />}
+        {ready && !error && <FaceGuide guide={group.guide} />}
       </div>
 
       <aside className="ticker-panel">
@@ -58,7 +59,9 @@ export default function CountdownScreen({ onFinish, onCancel }) {
         {error ? (
           <p className="ticker-panel__error">{error}</p>
         ) : ready ? (
-          <Ticker seconds={COUNTDOWN_SECONDS} onFinish={onFinish} />
+          /* Una familia de cinco tarda mas en acomodarse que una persona:
+             cada grupo trae su propia duracion. */
+          <Ticker seconds={group.countdown ?? COUNTDOWN_SECONDS} onFinish={onFinish} />
         ) : (
           <p className="ticker-panel__hint">Encendiendo la camara...</p>
         )}
@@ -93,7 +96,7 @@ function Ticker({ seconds, onFinish }) {
   return (
     <>
       <p className="ticker__label">
-        {shooting ? 'Ya!' : left <= 3 ? 'Sonrie' : 'Centrate en el ovalo'}
+        {shooting ? 'Ya!' : left <= 3 ? 'Sonrie' : 'Acomodense en el ovalo'}
       </p>
       <div key={left} className={`ticker__number ${shooting ? 'is-shooting' : ''}`}>
         {shooting ? '📸' : left}

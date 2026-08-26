@@ -19,27 +19,28 @@
  */
 
 import { AI_MODE, API_BASE_URL, AI_TIMEOUT_MS } from '../config.js';
-import { NEGATIVE_PROMPT } from '../photoStyles.js';
+import { styleFields } from '../photoStyles.js';
 import { applyPhotoEffect } from './photoEffect.js';
 
 /**
  * @param {{dataUrl:string, blob:Blob|null}} shot foto recien tomada
  * @param {object} style estilo elegido (ver photoStyles.js)
+ * @param {object} group grupo elegido (ver photoGroups.js)
  * @returns {Promise<{dataUrl:string, blob:Blob, fromAI:boolean}>}
  */
-export async function generatePhoto(shot, style) {
+export async function generatePhoto(shot, style, group) {
   if (AI_MODE !== 'real') {
-    return { ...(await applyPhotoEffect(shot, style)), fromAI: false };
+    return { ...(await applyPhotoEffect(shot, style, group.guide)), fromAI: false };
   }
 
   try {
-    const generated = await requestGeneration(shot, style);
+    const generated = await requestGeneration(shot, style, group);
     return { ...generated, fromAI: true };
   } catch (err) {
     // No se muestra un error: la persona no tiene la culpa de que la IA
     // este caida, y ya esta parada frente al totem con su foto tomada.
     console.warn('[ai] fallo la generacion, se usa el filtro local:', err.message);
-    return { ...(await applyPhotoEffect(shot, style)), fromAI: false };
+    return { ...(await applyPhotoEffect(shot, style, group.guide)), fromAI: false };
   }
 }
 
@@ -47,9 +48,11 @@ export async function generatePhoto(shot, style) {
  * POST {API_BASE_URL}/api/generate   (multipart/form-data)
  *
  *   photo          la foto tomada (archivo jpeg)
- *   styleId        'rubber-hose' | 'mundial-2026' | 'cabezon' | 'muneco-3d'
+ *   styleId        identificador del estilo
+ *   groupId        'personal' | 'pareja' | 'familia' | 'ninos'
  *   styleMode      'image-to-image'
- *   stylePrompt    prompt completo, ya incluye la instruccion de usar la foto
+ *   stylePrompt    prompt completo: ya incluye la instruccion de usar la
+ *                  foto como base y cuanta gente hay en ella
  *   styleNegative  lo que el modelo no debe hacer
  *   styleStrength  cuanto respetar la foto original (0 a 1)
  *
@@ -57,14 +60,10 @@ export async function generatePhoto(shot, style) {
  *   - 200 con Content-Type: image/*  y la imagen en el cuerpo
  *   - 200 con JSON { "image": "data:image/jpeg;base64,..." }
  */
-async function requestGeneration(shot, style) {
+async function requestGeneration(shot, style, group) {
   const form = new FormData();
   form.append('photo', await asBlob(shot), 'photo.jpg');
-  form.append('styleId', style.id);
-  form.append('styleMode', style.ai.mode);
-  form.append('stylePrompt', style.ai.prompt);
-  form.append('styleNegative', NEGATIVE_PROMPT);
-  form.append('styleStrength', String(style.ai.strength));
+  Object.entries(styleFields(style, group)).forEach(([k, v]) => form.append(k, String(v)));
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), AI_TIMEOUT_MS);

@@ -1074,3 +1074,61 @@ body {
 
   .screen--form.is-typing .key--hint { font-size: clamp(0.6rem, 1.2vmin, 0.9rem); }
 }
+
+/* ============================================================
+   QUIEN SALE EN LA FOTO (solo / pareja / familia / ninos)
+   ============================================================ */
+
+.group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(150px, 18vw, 260px), 1fr));
+  gap: clamp(0.9rem, 2.4vmin, 2rem);
+  width: min(1300px, 100%);
+}
+
+.group-card {
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: clamp(0.9rem, 2.4vmin, 2rem) clamp(0.6rem, 1.6vmin, 1.2rem);
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  border-radius: 18px;
+  box-shadow: calc(var(--line) * 1.6) calc(var(--line) * 1.6) 0 var(--ink);
+  cursor: pointer;
+  transition: transform 100ms ease, box-shadow 100ms ease;
+}
+
+/* Cada tarjeta inclinada distinto: se ve pegada a mano, no generada. */
+.group-card:nth-child(odd) { transform: rotate(-1.6deg); }
+.group-card:nth-child(even) { transform: rotate(1.6deg); }
+
+.group-card:active {
+  transform: translate(calc(var(--line) * 1.6), calc(var(--line) * 1.6)) rotate(0deg);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.group-card__icon {
+  font-size: clamp(2.4rem, 7vmin, 5rem);
+  line-height: 1;
+}
+
+.group-card__name {
+  font-family: Bungee, Impact, sans-serif;
+  font-size: clamp(0.95rem, 2.1vmin, 1.7rem);
+  color: var(--red);
+}
+
+.group-card__tag {
+  font-size: clamp(0.7rem, 1.4vmin, 1.1rem);
+  opacity: 0.7;
+}
+
+/* El "Volver" de esta pantalla va en el flujo, no flotando en la esquina:
+   aqui no hay camara detras que tapar. */
+.ghost-button--inline {
+  position: static;
+  margin-top: 1vmin;
+}

@@ -37,7 +37,9 @@ export function readQueue() {
  * Guarda un envio que fallo.
  * @returns {boolean} true si se pudo guardar
  */
-export function enqueue({ name, email, phone, consent, consentText, consentAt, photo, style }) {
+export function enqueue({
+  name, email, phone, consent, consentText, consentAt, photo, style, group,
+}) {
   try {
     const items = readQueue();
     items.push({
@@ -50,6 +52,7 @@ export function enqueue({ name, email, phone, consent, consentText, consentAt, p
       consentText,
       consentAt,
       styleId: style?.id ?? null,
+      groupId: group?.id ?? null,
       // Se guarda el dataUrl porque un Blob no sobrevive a JSON.
       photoDataUrl: photo.dataUrl,
     });
@@ -92,9 +95,10 @@ export function queueSize() {
  *
  * @param {(data) => Promise<any>} send la funcion sendPhoto de api.js
  * @param {(style: string|null) => object} resolveStyle para recuperar el estilo por id
+ * @param {(group: string|null) => object} resolveGroup para recuperar el grupo por id
  * @returns {Promise<number>} cuantos se lograron enviar
  */
-export async function flushQueue(send, resolveStyle) {
+export async function flushQueue(send, resolveStyle, resolveGroup) {
   const items = readQueue();
   let sent = 0;
 
@@ -110,6 +114,7 @@ export async function flushQueue(send, resolveStyle) {
         consentAt: item.consentAt,
         photo: { dataUrl: item.photoDataUrl, blob },
         style: resolveStyle(item.styleId),
+        group: resolveGroup(item.groupId),
         queued: true, // el backend puede querer saber que venia demorado
       });
       removeFromQueue(item.id);

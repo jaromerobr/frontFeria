@@ -19,7 +19,7 @@ import {
   API_TIMEOUT_MS,
   UPLOAD_STRATEGY,
 } from '../config.js';
-import { NEGATIVE_PROMPT } from '../photoStyles.js';
+import { styleFields } from '../photoStyles.js';
 
 /**
  * @param {object} data
@@ -28,6 +28,7 @@ import { NEGATIVE_PROMPT } from '../photoStyles.js';
  * @param {string} data.phone
  * @param {{dataUrl:string, blob:Blob|null}} data.photo foto ya ilustrada
  * @param {object} data.style estilo elegido (ver photoStyles.js)
+ * @param {object} data.group grupo elegido (ver photoGroups.js)
  * @param {boolean} data.consent la persona acepto el uso de sus datos
  * @param {string} data.consentText texto exacto que acepto
  * @param {string} data.consentAt fecha ISO en que lo acepto
@@ -51,7 +52,7 @@ export async function sendPhoto(data) {
 
 /* ---------------- BACKEND FALSO (modo feria sin backend) ---------------- */
 
-async function sendPhotoFake({ name, email, phone, photo, style, consent, queued }) {
+async function sendPhotoFake({ name, email, phone, photo, style, group, consent, queued }) {
   console.log('[api:fake] enviando', {
     name,
     email,
@@ -59,6 +60,7 @@ async function sendPhotoFake({ name, email, phone, photo, style, consent, queued
     consent,
     queued: Boolean(queued),
     styleId: style?.id,
+    groupId: group?.id,
     prompt: style?.ai?.prompt,
     photoBytes: photo?.blob?.size ?? photo?.dataUrl?.length ?? 0,
   });
@@ -77,13 +79,13 @@ async function sendPhotoFake({ name, email, phone, photo, style, consent, queued
     campos: name, email, phone, photo (archivo jpeg)
 */
 async function sendMultipart(data) {
-  const { name, email, phone, photo, style } = data;
+  const { name, email, phone, photo, style, group } = data;
   const form = new FormData();
   form.append('name', name);
   form.append('email', email);
   form.append('phone', phone);
   form.append('photo', await asBlob(photo), 'photo.jpg');
-  appendStyle((k, v) => form.append(k, v), style);
+  appendStyle((k, v) => form.append(k, v), style, group);
   appendConsent((k, v) => form.append(k, v), data);
 
   const res = await request(`${API_BASE_URL}/api/photos`, {
@@ -100,7 +102,7 @@ async function sendMultipart(data) {
     { name, email, phone, image: "data:image/jpeg;base64,..." }
 */
 async function sendBase64(data) {
-  const { name, email, phone, photo, style } = data;
+  const { name, email, phone, photo, style, group } = data;
   const res = await request(`${API_BASE_URL}/api/photos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -109,7 +111,7 @@ async function sendBase64(data) {
       email,
       phone,
       image: photo.dataUrl,
-      ...styleFields(style),
+      ...styleFields(style, group),
       ...consentFields(data),
     }),
   });
@@ -124,10 +126,10 @@ async function sendBase64(data) {
        -> { name, email, phone, photoUrl }
 */
 async function sendTwoStep(data) {
-  const { name, email, phone, photo, style } = data;
+  const { name, email, phone, photo, style, group } = data;
   const form = new FormData();
   form.append('photo', await asBlob(photo), 'photo.jpg');
-  appendStyle((k, v) => form.append(k, v), style);
+  appendStyle((k, v) => form.append(k, v), style, group);
 
   const up = await parse(
     await request(`${API_BASE_URL}/api/photos/upload`, { method: 'POST', body: form }),
@@ -141,7 +143,7 @@ async function sendTwoStep(data) {
       email,
       phone,
       photoUrl: up.photoUrl,
-      ...styleFields(style),
+      ...styleFields(style, group),
       ...consentFields(data),
     }),
   });
@@ -150,32 +152,17 @@ async function sendTwoStep(data) {
 
 /* ---------------- estilo elegido ---------------- */
 /*
-   El frontend NO ejecuta la IA: solo manda que estilo eligio la persona
-   y el prompt que le corresponde. El backend decide si lo usa para
-   generar la imagen o si se queda con la foto ya ilustrada localmente.
+   El frontend NO ejecuta la IA: solo manda que estilo y que grupo eligio
+   la persona, y el prompt que corresponde a esa combinacion. El backend
+   decide si lo usa para generar la imagen o si se queda con la foto que
+   ya viene ilustrada.
 
-   Campos enviados:
-     styleId        -> 'rubber-hose' | 'mundial-2026' | 'cabezon' | 'muneco-3d'
-     styleMode      -> siempre 'image-to-image': la foto adjunta es la BASE,
-                       no hay que generar a una persona nueva desde cero
-     stylePrompt    -> prompt en ingles, ya trae la instruccion de usar la foto
-     styleNegative  -> negativo comun (incluye "nada de textos ni nombres")
-     styleStrength  -> cuanto respetar la foto original (0 a 1)
+   Los campos los arma styleFields() en photoStyles.js, para que sean
+   exactamente los mismos que se mandan al generar (services/ai.js).
 */
 
-function styleFields(style) {
-  if (!style) return {};
-  return {
-    styleId: style.id,
-    styleMode: style.ai.mode,
-    stylePrompt: style.ai.prompt,
-    styleNegative: NEGATIVE_PROMPT,
-    styleStrength: style.ai.strength,
-  };
-}
-
-function appendStyle(append, style) {
-  Object.entries(styleFields(style)).forEach(([k, v]) => append(k, String(v)));
+function appendStyle(append, style, group) {
+  Object.entries(styleFields(style, group)).forEach(([k, v]) => append(k, String(v)));
 }
 
 /* ---------------- consentimiento ---------------- */

@@ -48,6 +48,7 @@ Content-Type: multipart/form-data
 |---|---|---|
 | `photo` | archivo jpeg | La foto recien tomada, **sin filtros** |
 | `styleId` | `cabezon` | Estilo elegido |
+| `groupId` | `familia` | `personal` \| `pareja` \| `familia` \| `ninos` |
 | `styleMode` | `image-to-image` | La foto es la BASE, no se genera desde cero |
 | `stylePrompt` | `Use the provided photograph...` | Prompt completo, listo para el modelo |
 | `styleNegative` | `different person, face swap, ...` | Lo que el modelo NO debe hacer |
@@ -86,6 +87,7 @@ Content-Type: multipart/form-data
 | `phone` | texto | `0999123456` | Celular |
 | `photo` | archivo | `photo.jpg` | **La foto, ya ilustrada por el totem** |
 | `styleId` | texto | `mundial-2026` | Estilo elegido |
+| `groupId` | texto | `familia` | Con cuanta gente se tomo la foto |
 | `styleMode` | texto | `image-to-image` | La foto es la BASE, no se genera desde cero |
 | `stylePrompt` | texto | `Use the provided photograph...` | Prompt completo, listo para el modelo |
 | `styleNegative` | texto | `different person, face swap, ...` | Lo que el modelo NO debe hacer |
@@ -127,9 +129,11 @@ Totem ──photo+prompt──> Backend ──> Gemini        Totem ──datos+
 Tres cosas que importan al llamar al modelo:
 
 1. **Es imagen a imagen.** `styleMode` viene en `image-to-image` y `stylePrompt` ya empieza
-   con la instruccion de usar la foto adjunta como base y devolver a **esa misma persona**.
-   Si se manda solo el texto, el modelo inventa una cara cualquiera y la gente no se
-   reconoce, que es lo unico que importa en un totem.
+   con la instruccion de usar la foto adjunta como base y devolver a **esas mismas
+   personas**. Si se manda solo el texto, el modelo inventa caras cualquiera y la gente no
+   se reconoce, que es lo unico que importa en un totem.
+   El prompt tambien dice **cuanta gente hay** (segun `groupId`) y prohibe agregar o quitar
+   personas: en fotos de grupo los modelos lo hacen constantemente.
 2. **Pasa el negativo.** `styleNegative` evita las tres fallas que arruinan una foto de
    feria: que salga otra persona, que el modelo escriba texto (y las letras salgan
    deformes) y que la caricatura se pase de burlona. Si la API que uses no tiene campo de

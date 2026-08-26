@@ -37,7 +37,7 @@ const MAX_WIDTH = 1200;
  * @param {object} style un elemento de PHOTO_STYLES
  * @returns {Promise<{dataUrl:string, blob:Blob}>}
  */
-export async function applyPhotoEffect(shot, style = DEFAULT_STYLE) {
+export async function applyPhotoEffect(shot, style = DEFAULT_STYLE, guide = FACE_GUIDE) {
   if (PHOTO_EFFECT === 'none') return shot;
 
   const look = style.local;
@@ -53,7 +53,7 @@ export async function applyPhotoEffect(shot, style = DEFAULT_STYLE) {
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   ctx.drawImage(img, 0, 0, w, h);
 
-  if (look.bulge) warpFace(ctx, w, h, look.bulge);
+  if (look.bulge) warpFace(ctx, w, h, look.bulge, guide);
   illustrate(ctx, w, h, look);
 
   if (PHOTO_FRAME) await drawFrame(ctx, w, h, look.frame);
@@ -72,7 +72,7 @@ export async function applyPhotoEffect(shot, style = DEFAULT_STYLE) {
  * @param {object} style un elemento de PHOTO_STYLES
  * @param {number} width ancho de la miniatura en px
  */
-export async function renderStylePreview(src, style, width = 300) {
+export async function renderStylePreview(src, style, width = 300, guide = FACE_GUIDE) {
   const img = await loadImage(src);
   const w = width;
   const h = Math.round((img.height / img.width) * width);
@@ -83,7 +83,7 @@ export async function renderStylePreview(src, style, width = 300) {
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   ctx.drawImage(img, 0, 0, w, h);
 
-  if (style.local.bulge) warpFace(ctx, w, h, style.local.bulge);
+  if (style.local.bulge) warpFace(ctx, w, h, style.local.bulge, guide);
   illustrate(ctx, w, h, style.local);
 
   return canvas.toDataURL('image/jpeg', 0.85);
@@ -93,6 +93,8 @@ export async function renderStylePreview(src, style, width = 300) {
    1. DEFORMACION CHISTOSA
    ------------------------------------------------------------
    Lente de aumento sobre la cara: agranda la cabeza (cabezon).
+   El centro y el radio salen de la guia del grupo, asi que con una
+   familia se ensancha sola y no le agranda la cabeza solo al del medio.
    Con un radio chico y `dy` positivo agarra solo nariz y boca, por
    si algun estilo nuevo lo necesita.
 
@@ -102,15 +104,15 @@ export async function renderStylePreview(src, style, width = 300) {
    Fuera del radio no se toca nada, asi el borde no se nota.
    ============================================================ */
 
-function warpFace(ctx, w, h, bulge) {
+function warpFace(ctx, w, h, bulge, guide = FACE_GUIDE) {
   const srcImage = ctx.getImageData(0, 0, w, h);
   const src = srcImage.data;
   const out = ctx.createImageData(w, h);
   const dst = out.data;
 
-  const cx = FACE_GUIDE.cx * w;
-  const cy = (FACE_GUIDE.cy + (bulge.dy ?? 0)) * h;
-  const radius = bulge.radius * FACE_GUIDE.w * w;
+  const cx = guide.cx * w;
+  const cy = (guide.cy + (bulge.dy ?? 0)) * h;
+  const radius = bulge.radius * guide.w * w;
   const power = 1 + bulge.strength;
 
   for (let y = 0; y < h; y++) {
