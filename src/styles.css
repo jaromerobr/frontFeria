@@ -964,3 +964,90 @@ body {
     font-size: clamp(1rem, 2.2vmin, 2rem);
   }
 }
+
+/* ============================================================
+   PANTALLA DE ESPERA — la foto revelandose
+   Generar con IA tarda; aqui la persona ve SU foto aparecer.
+   ============================================================ */
+
+.screen--processing { gap: clamp(0.7rem, 2vmin, 1.6rem); }
+
+.developing {
+  position: relative;
+  width: min(520px, 70vw);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: var(--line) solid var(--ink);
+  border-radius: 8px;
+  box-shadow: calc(var(--line) * 1.8) calc(var(--line) * 1.8) 0 var(--ink);
+  background: var(--paper-dark);
+  transform: rotate(-1.5deg);
+}
+
+.developing img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* La de abajo va a color; la de arriba en gris se va "borrando"
+   de arriba a abajo y deja ver el color, como en un cuarto oscuro. */
+.developing__gray {
+  filter: grayscale(1) contrast(1.15) brightness(1.05);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 100%);
+  -webkit-mask-size: 100% 300%;
+  mask-size: 100% 300%;
+  animation: develop 2.8s ease-in-out infinite;
+}
+
+@keyframes develop {
+  0%   { -webkit-mask-position: 0 100%; mask-position: 0 100%; }
+  100% { -webkit-mask-position: 0 -100%; mask-position: 0 -100%; }
+}
+
+/* Linea de luz que recorre la foto, como un escaner. */
+.developing__scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  animation: scan 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes scan {
+  0%   { top: -20%; }
+  100% { top: 100%; }
+}
+
+.processing__message {
+  font-family: Bungee, Impact, sans-serif;
+  font-size: clamp(0.95rem, 2.2vmin, 1.8rem);
+  color: var(--teal);
+  margin: 0;
+  /* Cada mensaje entra con su propia animacion (el key lo remonta). */
+  animation: drop-in 320ms ease both;
+}
+
+.processing__bar {
+  width: min(520px, 70vw);
+  background: var(--paper);
+}
+
+.processing__bar span { background: var(--red); transition: transform 220ms linear; }
+
+/* Si el sistema pide menos movimiento, la foto se queda quieta y a color. */
+@media (prefers-reduced-motion: reduce) {
+  .developing__gray { display: none; }
+  .developing__scan { display: none; }
+}

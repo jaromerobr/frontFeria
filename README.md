@@ -2,8 +2,8 @@
 
 Aplicacion de kiosco (totem) en **React + Vite**. Una sola pagina, navegacion por
 estados, sin router, sin librerias de UI. Toma una foto con la camara, la convierte
-en **caricatura estilo rubber hose**, le pone accesorios y marco de la feria, y la
-envia al correo de la persona.
+en **ilustracion** segun el estilo que elija la persona, le pone el marco de la feria, y
+la envia a su correo.
 
 Funciona **completa sin backend** (modo `fake`) y **sin camara** (modo `demo`).
 
@@ -57,7 +57,8 @@ src/
 │
 ├── services/
 │   ├── camera.js          <- UNICO punto que toca el hardware
-│   ├── photoEffect.js     <- caricatura + accesorios + marco (canvas puro)
+│   ├── ai.js              <- generacion de la imagen (Gemini via backend)
+│   ├── photoEffect.js     <- ilustracion + marco (canvas puro, sin IA)
 │   └── api.js             <- UNICO punto que habla con el backend
 │
 ├── hooks/
@@ -88,10 +89,13 @@ despues de cambiarlo.**
 | `VITE_BRAND_TITLE` / `VITE_BRAND_SUBTITLE` | FERIA DE LOJA / Photo Booth | Textos de portada |
 | `VITE_BRAND_FOOTER` | NODO | Marca en la banda inferior de la foto |
 | `VITE_MIRROR_CAMERA` | `true` | Efecto espejo del preview **y de la foto guardada** |
+| `VITE_AI_MODE` | `off` | `off` (filtro local) / `real` (se lo pide al backend) |
+| `VITE_AI_TIMEOUT_MS` | `60000` | Espera maxima a la IA antes de usar el filtro local |
+| `VITE_PROCESSING_MIN_MS` | `1400` | Minimo que se ve la pantalla de espera |
+| `VITE_PROCESSING_SLOW_SECONDS` | `18` | Cuando avisa que la generacion va lenta |
 | `VITE_PHOTO_EFFECT` | `cartoon` | `cartoon` (caricatura) / `none` (foto normal) |
-| `VITE_PHOTO_PROPS` | `true` | Accesorios chistosos sobre la cara |
 | `VITE_PHOTO_FRAME` | `true` | Marco de papel + banda con la marca |
-| `VITE_FACE_CX/CY/W/H` | `.5/.42/.3/.46` | Posicion del ovalo guia (y de los accesorios) |
+| `VITE_FACE_CX/CY/W/H` | `.5/.42/.3/.46` | Posicion del ovalo guia de encuadre |
 | `VITE_CAMERA_MODE` | `demo` | `demo` / `webcam` / `service` |
 | `VITE_DEMO_PHOTO` | `/demo-photo.svg` | Imagen usada en modo demo |
 | `VITE_CAMERA_SERVICE_URL` | `http://localhost:5000` | Servicio local de camara |
@@ -302,25 +306,27 @@ Pasos que aplica a cada foto:
 3. **Contorno de tinta** — detector de bordes Sobel; donde el borde supera
    `edge` oscurece el pixel. Eso dibuja las lineas negras del estilo cartoon.
 4. **Tinte calido + vineta** — le da el aire de papel viejo.
-5. **Accesorios** — sombrero de paja, gafas, bigote o corona, elegidos al azar.
-6. **Marco + marcas** — dos tipos: `paper` (borde de papel con banda de color, para los
+5. **Marco + marcas** — dos tipos: `paper` (borde de papel con banda de color, para los
    estilos dibujados) y `panini` (cromo de album completo: borde blanco de sticker,
    escudo con la bandera, franja con "2026" y placa roja), que usa Mundial 2026.
 
-### Como se colocan los accesorios sin deteccion de rostro
+### Para que sirve el ovalo guia
 
-No hay reconocimiento facial (costaria una libreria pesada y CPU del Jetson). El truco es
-el **ovalo guia**: mientras cuenta, la pantalla le pide a la persona centrarse en el ovalo.
+No hay reconocimiento facial (costaria una libreria pesada y CPU del Jetson). El **ovalo
+guia** lo reemplaza: mientras cuenta, la pantalla le pide a la persona centrarse en el.
 Si lo hace, ya sabemos donde esta su cara.
 
-`FACE_GUIDE` (en [config.js](src/config.js)) es **el mismo dato** para las dos cosas:
-dibuja el ovalo en pantalla y posiciona los accesorios en la foto. Si mueves el ovalo,
-los accesorios se mueven con el.
+`FACE_GUIDE` (en [config.js](src/config.js)) es **un solo dato** para dos cosas: dibuja el
+ovalo en pantalla y le dice al estilo Cabezon donde agrandar. Si mueves el ovalo, la
+deformacion se mueve con el.
+
+Tambien le conviene a la IA: caras centradas y del mismo tamano en todas las fotos hacen
+que el modelo devuelva resultados parecidos entre si, en vez de depender de si la persona
+se paro cerca o lejos de la camara.
 
 > Para que esto funcione, la foto guardada debe ser **exactamente el recorte que la persona
 > vio**. Por eso `captureFromWebcam()` recorta el video igual que el `object-fit: cover`
-> de la pantalla, en vez de guardar el cuadro completo de la camara. Si tocas ese codigo,
-> los accesorios se descuadran.
+> de la pantalla, en vez de guardar el cuadro completo de la camara.
 
 ### Ajustes tipicos en feria
 
@@ -335,16 +341,8 @@ porque un cromo del mundial y una caricatura no pueden usar los mismos:
 | Foto nitida, sin contornos | `edge: 999` (asi funciona Mundial 2026) |
 | La deformacion es exagerada | Bajar `bulge.strength` (`0.55` -> `0.35`) |
 | Agranda la parte equivocada | Mover `bulge.dy` y `bulge.radius` |
-| El sombrero queda alto/bajo | `PROP_LAYOUT` en [photoEffect.js](src/services/photoEffect.js) |
 | La gente sale muy abajo | Subir `VITE_FACE_CY` (ej. `0.46`) |
 | Sin efecto, foto normal | `VITE_PHOTO_EFFECT=none` |
-
-### Agregar accesorios nuevos
-
-1. Poner el SVG en `public/props/` (contorno negro grueso, fondo transparente,
-   con atributos `width` y `height` explicitos — sin ellos el canvas no sabe su tamano).
-2. Agregarlo a `PROP_LAYOUT` con su `scale` y `dy`.
-3. Agregar la combinacion a `PROP_SETS`.
 
 ---
 
@@ -376,7 +374,6 @@ Lo que hay ahora es todo **SVG generado, sin fotos reales**:
 
 | Archivo | Que es | Reemplazar por |
 |---|---|---|
-| `public/props/*.svg` | sombrero, gafas, bigote, corona | versiones ilustradas de verdad |
 | `public/styles/rubber-hose.jpg` | referencia del estilo (del cliente) | ya esta |
 | `public/styles/mundial-2026.jpg` | referencia del estilo (del cliente) | ya esta |
 | `public/styles/cabezon.jpg` | **falta** | referencia del estilo cabezon |
@@ -389,7 +386,7 @@ existe, no pasa nada: el codigo lo ignora.
 
 Recomendacion para el material grafico:
 
-- **Iconos y accesorios**: SVG, no PNG. Escalan a cualquier monitor y pesan nada.
+- **Iconos y logos**: SVG, no PNG. Escalan a cualquier monitor y pesan nada.
 - **Fondos**: mejor generados con CSS (como ahora) que fotos. Una foto de fondo se ve
   pixelada en un monitor de totem y pesa megas.
 - **Logos**: SVG con fondo transparente. Si solo hay PNG, que sea de al menos 1000 px
@@ -516,7 +513,36 @@ equipo limpio al terminar el evento.
 
 ---
 
-## 16. Que falta para tener el frontend completo
+## 16. La espera mientras se genera la imagen
+
+Generar con Gemini tarda entre 5 y 20 segundos, y la persona esta parada mirando la
+pantalla. Un "Cargando..." ahi se hace eterno, asi que
+[ProcessingScreen.jsx](src/screens/ProcessingScreen.jsx) hace tres cosas:
+
+1. **Le muestra su propia foto revelandose**, de gris a color, con una linea de luz que la
+   recorre como en un cuarto oscuro. Es lo mas importante: confirma que la foto salio bien
+   y le da algo suyo que mirar, no un circulito girando.
+2. **Mensajes que van cambiando** cada 2,6 s ("Mezclando la tinta...", "Afilando los
+   lapices..."), para que se note que algo avanza.
+3. **Una barra que se acerca al 94 % y se frena.** Nadie sabe cuanto va a tardar el modelo,
+   asi que prometer un porcentaje exacto seria mentira. El 100 % lo pone la foto al
+   aparecer, no el reloj.
+
+Pasados `VITE_PROCESSING_SLOW_SECONDS` (18 s) admite que va lenta y pide que no se vaya.
+Una espera larga molesta mucho menos cuando alguien te dice que sabe que es larga.
+
+`VITE_PROCESSING_MIN_MS` obliga a que la pantalla se vea al menos 1,4 s: sin IA el filtro
+local tarda ~200 ms y la pantalla apareceria como un parpadeo que se siente como un error.
+
+### Si la IA falla, el totem no se detiene
+
+[ai.js](src/services/ai.js) captura cualquier fallo — timeout, error del servidor, Gemini
+caido — y **cae solo al filtro local**. La persona igual se lleva su foto y la fila sigue
+avanzando. Una feria con fotos menos bonitas es mejor que una feria detenida.
+
+---
+
+## 17. Que falta para tener el frontend completo
 
 ### Hecho
 

@@ -72,6 +72,35 @@ export const BRAND = {
 };
 
 /* ============================================================
+   GENERACION CON IA  (services/ai.js)
+   ============================================================ */
+
+/**
+ * 'off'  -> la imagen la hace el filtro local del totem (funciona hoy)
+ * 'real' -> se le pide al backend, que llama a Gemini
+ *
+ * Si esta en 'real' y falla, el totem NO se detiene: cae al filtro local.
+ */
+export const AI_MODE = env.VITE_AI_MODE ?? 'off';
+
+/**
+ * Cuanto se espera a la IA antes de rendirse y usar el filtro local.
+ * Generar suele tardar entre 5 y 20 segundos; 60 da margen sin dejar a
+ * nadie parado un minuto y medio frente a la pantalla.
+ */
+export const AI_TIMEOUT_MS = Number(env.VITE_AI_TIMEOUT_MS ?? 60_000);
+
+/** Segundos tras los cuales la pantalla de espera admite que va lenta. */
+export const PROCESSING_SLOW_SECONDS = Number(env.VITE_PROCESSING_SLOW_SECONDS ?? 18);
+
+/**
+ * Tiempo minimo que se muestra la pantalla de espera.
+ * Sin IA el filtro tarda ~200 ms y la pantalla apareceria como un
+ * parpadeo molesto. Con esto siempre se ve la animacion completa.
+ */
+export const PROCESSING_MIN_MS = Number(env.VITE_PROCESSING_MIN_MS ?? 1400);
+
+/* ============================================================
    DATOS PERSONALES Y CONSENTIMIENTO
    ============================================================ */
 
@@ -116,9 +145,6 @@ export const STYLE_SAMPLE_PHOTO = env.VITE_STYLE_SAMPLE ?? '/demo-photo.svg';
 /** 'cartoon' = caricatura rubber hose | 'none' = foto tal cual. */
 export const PHOTO_EFFECT = env.VITE_PHOTO_EFFECT ?? 'cartoon';
 
-/** Accesorios chistosos (sombrero, bigote, gafas...). */
-export const PHOTO_PROPS = (env.VITE_PHOTO_PROPS ?? 'true') === 'true';
-
 /** Marco de papel + banda con la marca. */
 export const PHOTO_FRAME = (env.VITE_PHOTO_FRAME ?? 'true') === 'true';
 
@@ -133,10 +159,13 @@ export const PHOTO_FRAME = (env.VITE_PHOTO_FRAME ?? 'true') === 'true';
  * regresiva, en fracciones del ancho/alto del cuadro.
  *
  * Sirve para DOS cosas a la vez:
- *   1. que la persona se centre sola
- *   2. saber donde poner los accesorios sin deteccion de rostro
+ *   1. que la persona se centre sola, y salga bien encuadrada
+ *   2. saber donde esta la cara para deformarla (estilo Cabezon) sin
+ *      necesidad de deteccion de rostro
  *
- * Si mueves el ovalo, los accesorios se mueven con el. Es el mismo dato.
+ * Tambien le conviene a la IA: una cara centrada y del mismo tamano en
+ * todas las fotos hace que el modelo devuelva resultados parecidos entre
+ * si, en vez de depender de si la persona se paro cerca o lejos.
  */
 export const FACE_GUIDE = {
   cx: Number(env.VITE_FACE_CX ?? 0.5),

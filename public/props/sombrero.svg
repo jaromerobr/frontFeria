@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="600" height="330" viewBox="0 0 600 330">
-  <!-- Sombrero de paja toquilla, estilo rubber hose: contorno grueso, color plano -->
-  <g stroke="#181410" stroke-width="14" stroke-linejoin="round">
-    <ellipse cx="300" cy="252" rx="285" ry="62" fill="#f3e2b6"/>
-    <path d="M110 250 q10 -195 190 -195 q180 0 190 195 q-95 42 -190 42 q-95 0 -190 -42 z" fill="#f9efd0"/>
-    <path d="M112 232 q95 40 188 40 q93 0 188 -40 l6 34 q-96 42 -194 42 q-98 0 -194 -42 z" fill="#181410"/>
-  </g>
-</svg>

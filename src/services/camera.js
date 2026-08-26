@@ -94,7 +94,7 @@ async function captureFromWebcam() {
 
   // El video se muestra con object-fit: cover, o sea RECORTADO.
   // Si guardaramos el cuadro completo, la foto no seria la que la persona
-  // vio, y el ovalo guia dejaria de coincidir con donde van los accesorios.
+  // vio y el ovalo guia dejaria de encuadrar lo que encuadraba en pantalla.
   // Por eso se captura exactamente la region visible.
   const vw = videoEl.videoWidth || 1280;
   const vh = videoEl.videoHeight || 720;

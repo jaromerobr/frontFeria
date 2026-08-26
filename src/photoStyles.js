@@ -73,7 +73,7 @@ const STYLE_DEFS = [
   {
     id: 'rubber-hose',
     name: 'Rubber Hose',
-    tagline: 'Caricatura de los anos 30',
+    tagline: 'Caricatura',
     swatch: ['#f6e7c8', '#e0403a', '#181410'],
     reference: '/styles/rubber-hose.jpg',
     local: {
@@ -151,7 +151,7 @@ const STYLE_DEFS = [
   },
   {
     id: 'muneco-3d',
-    name: 'Muneco 3D',
+    name: 'Animado',
     tagline: 'Como de pelicula animada',
     swatch: ['#7fd1ff', '#ffb3c7', '#ffd97d'],
     reference: '/styles/muneco-3d.jpg',

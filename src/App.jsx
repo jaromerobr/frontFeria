@@ -15,14 +15,19 @@ import Bunting from './components/Bunting.jsx';
 import SponsorBar from './components/SponsorBar.jsx';
 
 import { capturePhoto, stopCamera } from './services/camera.js';
-import { applyPhotoEffect } from './services/photoEffect.js';
+import { generatePhoto } from './services/ai.js';
 import { DEFAULT_STYLE, getStyle } from './photoStyles.js';
 import { initSound, playError, playSuccess } from './services/sound.js';
 import { enqueue, flushQueue } from './services/queue.js';
 import { sendPhoto } from './services/api.js';
 import { useIdleTimeout } from './hooks/useIdleTimeout.js';
 import { enterFullscreen, installKioskGuards } from './kiosk.js';
-import { SESSION_TIMEOUT_MS, SESSION_WARNING_SECONDS, QUEUE_RETRY_MS } from './config.js';
+import {
+  SESSION_TIMEOUT_MS,
+  SESSION_WARNING_SECONDS,
+  QUEUE_RETRY_MS,
+  PROCESSING_MIN_MS,
+} from './config.js';
 
 /**
  * ============================================================
@@ -45,6 +50,19 @@ const SCREENS = {
   SUCCESS: 'SUCCESS',
   ERROR: 'ERROR',
 };
+
+/**
+ * Deja que la pantalla de espera se vea completa aunque el resultado
+ * llegue enseguida. Sin esto, con el filtro local la pantalla aparece y
+ * desaparece en 200 ms: un parpadeo que se siente como un error.
+ */
+async function withMinimumWait(promise) {
+  const started = Date.now();
+  const result = await promise;
+  const remaining = PROCESSING_MIN_MS - (Date.now() - started);
+  if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
+  return result;
+}
 
 /** Pantallas donde el usuario puede quedarse quieto y abandonar el totem. */
 const IDLE_WATCHED = [
@@ -128,7 +146,7 @@ export default function App() {
 
     setScreen(SCREENS.PROCESSING);
     try {
-      setPhoto(await applyPhotoEffect(rawShot, chosen));
+      setPhoto(await withMinimumWait(generatePhoto(rawShot, chosen)));
       setScreen(SCREENS.PREVIEW);
     } catch (err) {
       setErrorMessage(err.message || 'No se pudo aplicar el estilo.');
@@ -141,10 +159,10 @@ export default function App() {
     try {
       const shot = await capturePhoto();
       setRawShot(shot); // se guarda cruda para poder cambiar de estilo despues
-      // Ilustrar tarda unas decimas: se avisa en pantalla en vez
-      // de dejar la interfaz congelada.
+      // Generar con IA tarda entre 5 y 20 segundos: la pantalla de
+      // espera le muestra a la persona su propia foto revelandose.
       setScreen(SCREENS.PROCESSING);
-      const finished = await applyPhotoEffect(shot, style);
+      const finished = await withMinimumWait(generatePhoto(shot, style));
       setPhoto(finished);
       setScreen(SCREENS.PREVIEW);
     } catch (err) {
@@ -230,7 +248,7 @@ export default function App() {
         return <CountdownScreen onFinish={handleCountdownFinish} onCancel={resetSession} />;
 
       case SCREENS.PROCESSING:
-        return <ProcessingScreen />;
+        return <ProcessingScreen rawSrc={rawShot?.dataUrl} styleName={style.name} />;
 
       case SCREENS.PREVIEW:
         return (

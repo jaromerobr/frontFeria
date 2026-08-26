@@ -3,7 +3,7 @@
  *  EFECTO DE FOTO  (version local, sin IA)
  * ------------------------------------------------------------
  *  Convierte la foto real en una ilustracion segun el ESTILO que
- *  eligio la persona, y le pone accesorios, marco y marcas.
+ *  eligio la persona, y le pone el marco con las marcas.
  *
  *  Todo con canvas puro: sin librerias, sin internet, sin IA.
  *  Corre en el Jetson (~200 ms a 1200 px).
@@ -11,8 +11,7 @@
  *  Orden del proceso:
  *      1. deformar (chistoso: cabezon)
  *      2. ilustrar  (color plano + contorno de tinta)
- *      3. accesorios
- *      4. marco y marcas
+ *      3. marco y marcas
  *
  *  Se deforma ANTES de ilustrar: si se hiciera al reves, el
  *  posterizado ya habria hecho manchas planas y la deformacion
@@ -27,7 +26,7 @@
  * ============================================================
  */
 
-import { PHOTO_EFFECT, PHOTO_PROPS, PHOTO_FRAME, FACE_GUIDE, BRAND } from '../config.js';
+import { PHOTO_EFFECT, PHOTO_FRAME, FACE_GUIDE, BRAND } from '../config.js';
 import { DEFAULT_STYLE } from '../photoStyles.js';
 
 /** Ancho maximo de procesado. Mas que esto no se nota y cuesta el doble. */
@@ -57,7 +56,6 @@ export async function applyPhotoEffect(shot, style = DEFAULT_STYLE) {
   if (look.bulge) warpFace(ctx, w, h, look.bulge);
   illustrate(ctx, w, h, look);
 
-  if (PHOTO_PROPS) await drawProps(ctx, w, h, look.bulge);
   if (PHOTO_FRAME) await drawFrame(ctx, w, h, look.frame);
 
   const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
@@ -67,7 +65,7 @@ export async function applyPhotoEffect(shot, style = DEFAULT_STYLE) {
 
 /**
  * Miniatura para el selector de estilos: mismo proceso pero en chico
- * y sin accesorios ni marco. Se calcula en vivo, no es una imagen
+ * y sin marco. Se calcula en vivo, no es una imagen
  * guardada: si cambias un estilo, la tarjeta cambia sola.
  *
  * @param {string} src ruta de la imagen de muestra
@@ -273,60 +271,7 @@ function sobel(gray, w, h) {
 }
 
 /* ============================================================
-   3. ACCESORIOS CHISTOSOS
-   ------------------------------------------------------------
-   No hay deteccion de rostro (costaria una libreria y CPU del
-   Jetson). El truco es la GUIA OVAL de la pantalla de cuenta
-   regresiva: si la persona pone la cara ahi, sabemos donde esta.
-   ============================================================ */
-
-const PROP_SETS = [
-  ['/props/sombrero.svg', '/props/bigote.svg'],
-  ['/props/gafas.svg', '/props/bigote.svg'],
-  ['/props/sombrero.svg', '/props/gafas.svg'],
-  ['/props/corona.svg'],
-];
-
-/**
- * @param {object|null} bulge si la cara se agrando, los accesorios
- *        tienen que crecer con ella o quedan flotando pequenos.
- */
-async function drawProps(ctx, w, h, bulge) {
-  const set = PROP_SETS[Math.floor(Math.random() * PROP_SETS.length)];
-  const grow = bulge ? 1 + bulge.strength * 0.5 : 1;
-
-  const cx = FACE_GUIDE.cx * w;
-  const cy = FACE_GUIDE.cy * h;
-  const fw = FACE_GUIDE.w * w * grow;
-  const fh = FACE_GUIDE.h * h * grow;
-
-  for (const src of set) {
-    const img = await loadImage(src).catch(() => null);
-    if (!img) continue; // si falta el archivo, simplemente no se dibuja
-
-    const spec = PROP_LAYOUT[src.split('/').pop()];
-    if (!spec) continue;
-
-    const width = fw * spec.scale;
-    const height = width * (img.height / img.width);
-    ctx.drawImage(img, cx - width / 2, cy + fh * spec.dy - height / 2, width, height);
-  }
-}
-
-/**
- * Donde va cada accesorio respecto al centro de la cara.
- * dy en fracciones de la altura de la cara (negativo = arriba).
- * Ajustar aqui si en la feria queda descuadrado.
- */
-const PROP_LAYOUT = {
-  'sombrero.svg': { scale: 1.75, dy: -0.62 },
-  'corona.svg': { scale: 1.25, dy: -0.58 },
-  'gafas.svg': { scale: 1.15, dy: -0.08 },
-  'bigote.svg': { scale: 0.7, dy: 0.2 },
-};
-
-/* ============================================================
-   4. MARCO Y MARCAS
+   3. MARCO Y MARCAS
    Dos tipos:
      'paper'  -> marco de papel con banda de color (estilos dibujados)
      'panini' -> cromo de album, para el estilo Mundial 2026

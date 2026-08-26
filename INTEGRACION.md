@@ -3,12 +3,18 @@
 Documento para quien hace el backend. **No hace falta leer el resto del proyecto.**
 
 El frontend ya funciona completo por su cuenta: toma la foto, la ilustra en el propio
-equipo y simula el envio. Para conectarlo de verdad hay que hacer **dos cosas**:
+equipo y simula el envio.
 
-1. Levantar un endpoint que reciba el POST descrito abajo.
-2. Cambiar tres variables en el archivo `.env` del totem.
+Hay **dos puntos de conexion, independientes entre si**. Se pueden hacer en cualquier
+orden, y cada uno funciona sin el otro:
 
-Nada mas. No hay que tocar ninguna pantalla.
+| | Endpoint | Cuando ocurre | Que hace |
+|---|---|---|---|
+| **A** | `POST /api/generate` | Justo despues de la foto | Le pide a Gemini la imagen y la devuelve para mostrarla en pantalla |
+| **B** | `POST /api/photos` | Cuando la persona da sus datos | Guarda y manda la foto al correo |
+
+No hay que tocar ninguna pantalla: solo levantar los endpoints y cambiar unas variables
+en el `.env` del totem.
 
 ---
 
@@ -17,8 +23,10 @@ Nada mas. No hay que tocar ninguna pantalla.
 Archivo `.env` (copiar de `.env.example`):
 
 ```env
-VITE_API_MODE=real                          # deja de simular y sale a la red
 VITE_API_BASE_URL=http://192.168.1.50:8080  # donde vive tu backend
+
+VITE_AI_MODE=real                           # activa el punto A (Gemini)
+VITE_API_MODE=real                          # activa el punto B (envio)
 VITE_UPLOAD_STRATEGY=multipart              # multipart | base64 | two-step
 ```
 
@@ -29,7 +37,42 @@ cual: es cambiar una palabra, no codigo.
 
 ---
 
-## 2. El contrato (estrategia `multipart`, la recomendada)
+## 2. Punto A — generar la imagen con Gemini
+
+```http
+POST {VITE_API_BASE_URL}/api/generate
+Content-Type: multipart/form-data
+```
+
+| Campo | Ejemplo | Que es |
+|---|---|---|
+| `photo` | archivo jpeg | La foto recien tomada, **sin filtros** |
+| `styleId` | `cabezon` | Estilo elegido |
+| `styleMode` | `image-to-image` | La foto es la BASE, no se genera desde cero |
+| `stylePrompt` | `Use the provided photograph...` | Prompt completo, listo para el modelo |
+| `styleNegative` | `different person, face swap, ...` | Lo que el modelo NO debe hacer |
+| `styleStrength` | `0.6` | Cuanto respetar la foto original (0 a 1) |
+
+Respuesta, cualquiera de las dos formas:
+
+- `200` con `Content-Type: image/jpeg` y la imagen en el cuerpo, **o**
+- `200` con JSON `{ "image": "data:image/jpeg;base64,..." }`
+
+### Dos cosas que ya estan resueltas del lado del totem
+
+**Si esto falla, el totem no se detiene.** Timeout, error 500, Gemini caido, lo que sea:
+el totem cae solo al filtro local y la persona igual se lleva su foto. Una feria con fotos
+menos bonitas es mejor que una feria detenida. Asi que **no hace falta blindar este
+endpoint**; si se cae, se cae con red.
+
+**La espera esta cubierta.** Mientras generas, la pantalla le muestra a la persona su
+propia foto revelandose, con mensajes que van cambiando y una barra de progreso. Aguanta
+bien hasta ~20 segundos; pasado eso avisa que va lenta. El limite duro es
+`VITE_AI_TIMEOUT_MS` (60 s por defecto).
+
+---
+
+## 3. Punto B — guardar y enviar (estrategia `multipart`, la recomendada)
 
 ```http
 POST {VITE_API_BASE_URL}/api/photos
@@ -70,16 +113,15 @@ Todas estan implementadas en [src/services/api.js](src/services/api.js).
 
 ---
 
-## 3. Donde entra Gemini
+## 4. Como llamar a Gemini
 
 El frontend **no llama a ninguna IA**. Manda la foto y el prompt; el resto es tuyo.
 
 ```
-Totem  ──POST──>  Backend  ──imagen + stylePrompt──>  Gemini
-                     │                                   │
-                     │  <───────── imagen generada ──────┘
-                     │
-                     └──> correo de la persona
+                 (A) al tomar la foto              (B) al dar los datos
+Totem ──photo+prompt──> Backend ──> Gemini        Totem ──datos+foto──> Backend
+      <──imagen generada──┘                                              │
+                                                                         └──> correo
 ```
 
 Tres cosas que importan al llamar al modelo:
@@ -99,18 +141,19 @@ Tres cosas que importan al llamar al modelo:
 Cada foto sale distinta aunque dos personas elijan el mismo estilo: el modelo genera una
 imagen nueva cada vez. Las imagenes del selector son solo ejemplos.
 
-### Si la generacion es lenta
+### Si decides generar en el punto B en vez del A
 
-El totem muestra "Enviando" mientras espera. Si Gemini tarda mas de ~20 segundos, la
-persona se cansa y la fila se traba.
+Tambien vale: no activas `VITE_AI_MODE` y generas al momento de enviar. En ese caso
+responde **`202` de inmediato** y genera despues, porque la persona esta esperando en la
+pantalla de "Enviando" y el resultado igual le llega por correo.
 
-Lo recomendable: responder **`202` de inmediato**, generar la imagen despues y mandarla
-por correo. El resultado igual llega al correo, no a la pantalla, asi que nadie necesita
-esperarlo ahi parado.
+La diferencia: en el punto A la persona **ve** su caricatura y puede repetirla o cambiar
+de estilo; en el punto B se entera cuando abre el correo. La primera opcion es bastante
+mejor para una feria, pero cuesta que el endpoint responda rapido.
 
 ---
 
-## 4. Errores
+## 5. Errores
 
 Cualquier respuesta que no sea 2xx hace que el totem muestre la pantalla de error con un
 boton de reintentar. Si puedes devolver un mensaje legible para la persona, mandalo asi:
@@ -124,7 +167,7 @@ leer, no en el log.
 
 ---
 
-## 5. Envios demorados (`queued: true`)
+## 6. Envios demorados (`queued: true`)
 
 Si se cae el wifi, el totem guarda el envio y lo reintenta solo cada 45 segundos. Cuando
 por fin entra, llega con `queued: true` y un `consentAt` de hace rato.
@@ -134,7 +177,7 @@ foto rescatada. Tratala igual que las demas.
 
 ---
 
-## 6. CORS
+## 7. CORS
 
 El totem corre en `http://localhost:5173` (desarrollo) o en el origen del totem
 (produccion). El backend tiene que permitir ese origen y los metodos `POST, OPTIONS`.
@@ -144,7 +187,7 @@ este perfectamente vivo. Es el primer sitio donde mirar.
 
 ---
 
-## 7. Probarlo sin el totem
+## 8. Probarlo sin el totem
 
 ```bash
 curl -X POST http://localhost:8080/api/photos \
