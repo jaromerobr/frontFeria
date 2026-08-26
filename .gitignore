@@ -1,0 +1,25 @@
+# Dependencias y build
+node_modules/
+dist/
+dist-ssr/
+
+# Entorno local (el de referencia es .env.example, ese SI se sube)
+.env
+.env.local
+.env.*.local
+
+# Herramientas y editores
+.claude/
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Material de referencia del cliente: son imagenes pesadas y de
+# terceros. Se quedan en el equipo, no en el repositorio.
+# Las versiones que la app necesita estan en public/styles/.
+refs/

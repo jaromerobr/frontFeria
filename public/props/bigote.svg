@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="240" viewBox="0 0 600 240">
+  <!-- Bigote de manubrio -->
+  <path d="M300 96 q-46 -34 -108 -30 q-92 6 -140 66 q-38 48 6 82 q46 36 106 4 q62 -34 136 -34 q74 0 136 34 q60 32 106 -4 q44 -34 6 -82 q-48 -60 -140 -66 q-62 -4 -108 30 z"
+        fill="#2a1c12" stroke="#181410" stroke-width="12" stroke-linejoin="round"/>
+</svg>

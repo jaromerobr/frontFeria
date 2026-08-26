@@ -1,0 +1,10 @@
+Deja aqui los logos de los auspiciantes (SVG o PNG con fondo transparente).
+
+Luego agrega cada uno en src/sponsors.js:
+
+    { name: 'ACME', logo: '/sponsors/acme.svg' },
+
+Mientras el archivo no exista, la banda muestra el nombre en texto,
+asi que el espacio ya esta reservado y nada se descuadra despues.
+
+Tamano ideal: alto de 200 px o mas, o SVG (que da igual el tamano).
