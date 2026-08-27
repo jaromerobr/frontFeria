@@ -99,8 +99,25 @@ export const AI_PROVIDER = env.VITE_AI_PROVIDER ?? '';
 /** Modelo concreto, ej. 'qwen-image-3.0'. Vacio = el que tenga por defecto. */
 export const AI_MODEL = env.VITE_AI_MODEL ?? '';
 
-/** Resolucion pedida, ej. '1024*1024'. Vacio = que decida el backend. */
-export const AI_SIZE = env.VITE_AI_SIZE ?? '';
+/**
+ * Resolucion que se le pide al modelo.
+ *
+ * 768x1024 y no 1024x1365: es 3:4 (la proporcion del totem vertical),
+ * se ve perfecto en pantalla, pesa poco y **se genera bastante mas
+ * rapido**. Subirla es la forma mas facil de que la espera pase de 5 a
+ * 15 segundos sin que nadie note la diferencia en la foto.
+ */
+export const AI_SIZE = env.VITE_AI_SIZE ?? '768*1024';
+
+/**
+ * Lado mayor de la foto que se SUBE al backend.
+ *
+ * La camara da hasta 1920 px y subir eso por el wifi de una feria son
+ * segundos perdidos antes de que el modelo empiece siquiera. A 1024 el
+ * modelo ve lo mismo (las caras siguen nitidas) y el viaje es 3 o 4
+ * veces mas corto.
+ */
+export const AI_UPLOAD_MAX_PX = Number(env.VITE_AI_UPLOAD_MAX_PX ?? 1024);
 
 /**
  * Mandar tambien styleId y groupId.
@@ -112,15 +129,50 @@ export const AI_SIZE = env.VITE_AI_SIZE ?? '';
  */
 export const AI_SEND_METADATA = (env.VITE_AI_SEND_METADATA ?? 'false') === 'true';
 
-/** Segundos tras los cuales la pantalla de espera admite que va lenta. */
-export const PROCESSING_SLOW_SECONDS = Number(env.VITE_PROCESSING_SLOW_SECONDS ?? 18);
+/**
+ * Segundos tras los cuales la pantalla de espera admite que va lenta.
+ * El objetivo es que una foto salga en menos de 5 s; a los 10 ya hay
+ * que decirle algo a la persona en vez de dejarla mirando una barra.
+ */
+export const PROCESSING_SLOW_SECONDS = Number(env.VITE_PROCESSING_SLOW_SECONDS ?? 10);
 
 /**
  * Tiempo minimo que se muestra la pantalla de espera.
  * Sin IA el filtro tarda ~200 ms y la pantalla apareceria como un
  * parpadeo molesto. Con esto siempre se ve la animacion completa.
  */
-export const PROCESSING_MIN_MS = Number(env.VITE_PROCESSING_MIN_MS ?? 1400);
+export const PROCESSING_MIN_MS = Number(env.VITE_PROCESSING_MIN_MS ?? 900);
+
+/* ============================================================
+   COMO RECIBE LA PERSONA SU FOTO
+   ============================================================ */
+
+/**
+ * 'qr'   -> el totem muestra un codigo QR y la persona descarga la foto
+ *           y deja sus datos en SU celular. Es lo practico en una feria:
+ *           no hay que escribir un correo con el teclado en pantalla, la
+ *           fila avanza mucho mas rapido y los datos los teclea cada uno
+ *           en su teclado de siempre.
+ * 'form'  -> el formulario de nombre, correo y celular dentro del totem.
+ *           Sigue funcionando entero por si el backend no llega a tener
+ *           la pagina de descarga.
+ */
+export const DELIVERY_MODE = env.VITE_DELIVERY ?? 'qr';
+
+/** Donde se sube la foto para obtener el enlace de descarga. */
+export const DOWNLOAD_ENDPOINT = env.VITE_DOWNLOAD_ENDPOINT ?? '/api/photos';
+
+/**
+ * Si el backend devuelve solo un id en vez de una URL, se arma con esto:
+ *     {DOWNLOAD_BASE_URL}/{id}
+ */
+export const DOWNLOAD_BASE_URL = env.VITE_DOWNLOAD_BASE_URL ?? '';
+
+/** Nombre del campo del archivo al subir la foto (lo fija el backend). */
+export const DOWNLOAD_FILE_FIELD = env.VITE_DOWNLOAD_FILE_FIELD ?? 'image';
+
+/** Segundos que se queda el QR de descarga antes de volver al inicio. */
+export const DELIVERY_SECONDS = Number(env.VITE_DELIVERY_SECONDS ?? 60);
 
 /* ============================================================
    DATOS PERSONALES Y CONSENTIMIENTO

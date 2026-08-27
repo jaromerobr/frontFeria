@@ -18,6 +18,9 @@ import {
   API_BASE_URL,
   API_TIMEOUT_MS,
   UPLOAD_STRATEGY,
+  DOWNLOAD_ENDPOINT,
+  DOWNLOAD_BASE_URL,
+  DOWNLOAD_FILE_FIELD,
 } from '../config.js';
 import { styleFields } from '../photoStyles.js';
 
@@ -216,4 +219,52 @@ async function parse(res) {
 async function asBlob(photo) {
   if (photo.blob) return photo.blob;
   return await (await fetch(photo.dataUrl)).blob();
+}
+
+/* ============================================================
+   ENTREGA POR QR
+   ------------------------------------------------------------
+   Sube la foto y devuelve el enlace donde la persona la descarga
+   y deja sus datos desde su propio celular.
+
+   Es lo practico en una feria: nadie tiene que escribir un correo
+   con el teclado en pantalla, la fila avanza mucho mas rapido, y
+   cada quien teclea sus datos en el teclado al que esta
+   acostumbrado, con menos errores.
+   ============================================================ */
+
+/**
+ * @param {{photo:{dataUrl:string, blob:Blob|null}, style:object, group:object}} data
+ * @returns {Promise<{url:string}>} enlace para el codigo QR
+ */
+export async function publishForDownload({ photo, style, group }) {
+  if (API_MODE !== 'real') {
+    console.log('[api:fake] publicando para descarga', {
+      styleId: style?.id,
+      groupId: group?.id,
+    });
+    await new Promise((r) => setTimeout(r, 900));
+    return { url: `${DOWNLOAD_BASE_URL || 'https://nodo.com.ec/foto'}/demo-${Date.now()}` };
+  }
+
+  const form = new FormData();
+  form.append(DOWNLOAD_FILE_FIELD, await asBlob(photo), 'foto.jpg');
+  appendStyle((k, v) => form.append(k, v), style, group);
+
+  const res = await request(`${API_BASE_URL}${DOWNLOAD_ENDPOINT}`, {
+    method: 'POST',
+    body: form,
+  });
+  const body = await parse(res);
+
+  const url =
+    body.url ??
+    body.photoUrl ??
+    body.downloadUrl ??
+    (body.id && DOWNLOAD_BASE_URL ? `${DOWNLOAD_BASE_URL}/${body.id}` : null);
+
+  if (!url) {
+    throw new Error('El servidor no devolvio el enlace de descarga.');
+  }
+  return { url };
 }

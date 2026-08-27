@@ -472,7 +472,9 @@ button:disabled { cursor: not-allowed; }
 .photo-frame__img {
   max-height: 52vh;
   max-width: 80vw;
-  object-fit: cover;
+  /* contain y no cover: la imagen viene del modelo y no siempre en la
+     proporcion que pedimos. Con cover se recortaria justo la cara. */
+  object-fit: contain;
   display: block;
 }
 
@@ -797,8 +799,12 @@ button:disabled { cursor: not-allowed; }
 }
 
 .sponsor img {
-  height: 100%;
+  /* Limite por ancho ademas de por alto: el logo de NODO mide 198 px y
+     al estirarlo a la altura de la banda salia gigante y borroso. */
+  max-height: 100%;
+  max-width: clamp(150px, 20vw, 330px);
   width: auto;
+  height: auto;
   object-fit: contain;
 }
 
@@ -1613,5 +1619,218 @@ button:disabled { cursor: not-allowed; }
     right: 2.5vmin;
     padding: 0.9rem 2.2rem;
     font-size: clamp(0.85rem, 1.8vw, 1.4rem);
+  }
+}
+
+/* ============================================================
+   AJUSTES PARA EL TOTEM VERTICAL
+   La pantalla es alta y estrecha: las rejillas de una sola fila
+   dejan los cuadros diminutos y media pantalla vacia. Aqui todo
+   se reparte en dos columnas y crece con el ancho.
+   ============================================================ */
+
+@media (orientation: portrait) {
+  /* --- Quien sale en la foto: 2 arriba y 2 abajo --- */
+  .group-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1.2rem, 3.5vw, 3rem);
+    width: min(94%, 1100px);
+  }
+
+  .group-card { padding: clamp(1.6rem, 4.5vw, 3.5rem) clamp(1rem, 2.5vw, 2rem); }
+  .group-card__icon { font-size: clamp(4rem, 13vw, 9rem); }
+  .group-card__name { font-size: clamp(1.4rem, 3.6vw, 2.8rem); }
+  .group-card__tag { font-size: clamp(0.9rem, 2vw, 1.6rem); }
+
+  /* --- Estilos: dos o tres columnas segun cuantos haya --- */
+  .style-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1rem, 3vw, 2.4rem);
+    width: min(94%, 1100px);
+  }
+
+  .style-grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(0.7rem, 2vw, 1.6rem);
+  }
+
+  .style-grid--3 .style-card__name { font-size: clamp(0.85rem, 2vw, 1.6rem); }
+  .style-grid--3 .style-card__tag { font-size: clamp(0.65rem, 1.4vw, 1.1rem); }
+
+  .style-card { padding: clamp(0.7rem, 2vw, 1.4rem); }
+  .style-card__name { font-size: clamp(1.1rem, 2.8vw, 2.2rem); }
+  .style-card__tag { font-size: clamp(0.8rem, 1.8vw, 1.4rem); }
+  .style-card__badge { font-size: clamp(0.6rem, 1.4vw, 1.1rem); }
+
+  /* --- Conoce NODO: rejilla cuadrada de 2x2 --- */
+  .social-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1.2rem, 3.5vw, 3rem);
+    width: min(88%, 900px);
+  }
+
+  .social-card__top { font-size: clamp(1rem, 2.4vw, 2rem); }
+  .social-card__handle { font-size: clamp(0.85rem, 1.9vw, 1.5rem); }
+
+  /* La tira de la bienvenida tambien va 2x2. */
+  .social-strip__items {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: clamp(0.8rem, 2.5vw, 2rem);
+    justify-content: center;
+  }
+
+  /* --- Auspiciantes: son los que pagan, se ven --- */
+  .sponsor-bar { height: clamp(110px, 12vh, 220px); }
+  .sponsor { height: clamp(70px, 8.5vh, 150px); }
+
+  .sponsor--text {
+    font-size: clamp(1rem, 2.2vw, 1.8rem);
+    padding: 0.5em 1.4em;
+  }
+}
+
+/* En vertical la foto es la protagonista: ocupa lo que pueda sin
+   empujar los botones fuera de la pantalla. */
+@media (orientation: portrait) {
+  .photo-frame__img { max-height: 46vh; max-width: 88vw; }
+  .screen--preview .title { font-size: clamp(2rem, 5.5vw, 3.6rem); }
+  .screen--preview .lead--small { font-size: clamp(1rem, 2.2vw, 1.8rem); }
+}
+
+/* ============================================================
+   ENTREGA POR QR
+   El codigo es lo mas importante de la pantalla: se escanea de
+   pie, a medio metro y a veces con reflejos. Grande o no sirve.
+   ============================================================ */
+
+.delivery {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vmin, 2.5rem);
+}
+
+.delivery__qr {
+  width: clamp(220px, 34vmin, 520px);
+  aspect-ratio: 1;
+  padding: clamp(8px, 1.2vmin, 16px);
+  background: #fff;
+  border: var(--line) solid var(--ink);
+  border-radius: 14px;
+  box-shadow: calc(var(--line) * 1.6) calc(var(--line) * 1.6) 0 var(--ink);
+}
+
+/* La foto va al lado, chica: sirve para que la persona sepa que ese
+   codigo es el de SU foto, no para mirarla otra vez. */
+.delivery__thumb {
+  width: clamp(110px, 17vmin, 260px);
+  border: var(--line) solid var(--ink);
+  border-radius: 10px;
+  box-shadow: calc(var(--line) * 1.2) calc(var(--line) * 1.2) 0 var(--ink);
+  transform: rotate(-2deg);
+  object-fit: contain;
+}
+
+@media (orientation: portrait) {
+  .delivery { flex-direction: column; gap: clamp(1rem, 3vw, 2rem); }
+  .delivery__qr { width: clamp(280px, 55vw, 620px); }
+  .delivery__thumb { width: clamp(130px, 26vw, 320px); }
+  .screen--delivery .title { font-size: clamp(1.8rem, 5vw, 3.4rem); }
+  .screen--delivery .lead { font-size: clamp(1rem, 2.4vw, 2rem); max-width: 30ch; }
+}
+
+/* ============================================================
+   EMPRESAS CREADORAS (bienvenida)
+   Ocupan el sitio que la gente mira primero. Una a la vez y
+   grande: de reojo, cinco logos pequenos no los lee nadie.
+   ============================================================ */
+
+.creators {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.5rem, 1.5vmin, 1.2rem);
+}
+
+.creators__kicker {
+  font-family: Bungee, Impact, sans-serif;
+  font-size: clamp(0.8rem, 1.8vmin, 1.5rem);
+  letter-spacing: 0.3em;
+  margin: 0;
+  opacity: 0.7;
+}
+
+.creators__slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(70px, 12vmin, 190px);
+  animation: creator-in 600ms cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+
+@keyframes creator-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+.creators__logo {
+  max-height: clamp(60px, 11vmin, 175px);
+  max-width: min(80vw, 700px);
+  width: auto;
+  object-fit: contain;
+}
+
+.creators__name {
+  font-family: Bungee, Impact, sans-serif;
+  font-size: clamp(2rem, 7vmin, 5.5rem);
+  color: var(--red);
+  -webkit-text-stroke: calc(var(--line) * 0.6) var(--ink);
+  paint-order: stroke fill;
+  text-shadow: calc(var(--line)) calc(var(--line)) 0 var(--mustard);
+  letter-spacing: 0.04em;
+}
+
+.creators__dots { display: flex; gap: 0.6rem; }
+
+.creators__dots span {
+  width: clamp(9px, 1.3vmin, 16px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid var(--ink);
+  opacity: 0.45;
+  transition: background 200ms ease, opacity 200ms ease;
+}
+
+.creators__dots span.is-on { background: var(--red); opacity: 1; }
+
+/* ============================================================
+   BOTONES MAS GRANDES
+   Se tocan con el dedo, de pie y con prisa. Lo que en un monitor
+   parece exagerado, en un totem es lo justo.
+   ============================================================ */
+
+.big-button {
+  font-size: clamp(1.3rem, 3vmin, 2.4rem);
+  padding: clamp(1.1rem, 2.8vmin, 2.1rem) clamp(2.6rem, 7vmin, 5.5rem);
+  min-width: clamp(240px, 32vmin, 460px);
+}
+
+@media (orientation: portrait) {
+  .creators__kicker { font-size: clamp(1rem, 2.2vw, 1.8rem); }
+  .creators__logo { max-height: clamp(90px, 16vw, 260px); }
+  .creators__name { font-size: clamp(2.8rem, 11vw, 8rem); }
+  .creators__slide { min-height: clamp(110px, 18vw, 300px); }
+
+  .big-button {
+    font-size: clamp(1.6rem, 4vw, 3rem);
+    padding: clamp(1.3rem, 3.2vw, 2.6rem) clamp(3rem, 8vw, 6rem);
+    min-width: clamp(300px, 48vw, 700px);
+  }
+
+  /* El de la bienvenida es el que hay que ver desde lejos. */
+  .screen--welcome .big-button {
+    font-size: clamp(1.9rem, 5vw, 3.6rem);
+    padding: clamp(1.5rem, 3.8vw, 3rem) clamp(3.5rem, 9vw, 7rem);
   }
 }

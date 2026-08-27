@@ -80,7 +80,11 @@ export default function StyleScreen({ group, sampleSrc, onSelect, onBack, curren
         <p className="hint">Son ejemplos: tu foto sera unica</p>
       )}
 
-      <div className="style-grid">
+      {/* Con 4 estilos caben de dos en dos y se ven grandes. Con 5 o
+          mas hacen falta tres columnas: en vertical, cuatro filas de
+          dos dejan la ultima tarjeta y el boton fuera de la pantalla,
+          y en un totem lo que no se ve no se puede tocar. */}
+      <div className={`style-grid ${styles.length > 4 ? 'style-grid--3' : ''}`}>
         {styles.map((style) => (
           <button
             key={style.id}

@@ -46,6 +46,7 @@ import {
   AI_SEND_METADATA,
   AI_SIZE,
   AI_TIMEOUT_MS,
+  AI_UPLOAD_MAX_PX,
   API_BASE_URL,
 } from '../config.js';
 import { getPrompt, NEGATIVE_PROMPT } from '../photoStyles.js';
@@ -74,7 +75,10 @@ export async function generatePhoto(shot, style, group) {
 }
 
 async function requestGeneration(shot, style, group) {
-  const blob = await asBlob(shot);
+  // Se sube reducida: el modelo ve lo mismo y el viaje por el wifi de
+  // la feria es tres o cuatro veces mas corto. Es la parte del tiempo
+  // de espera que si esta en nuestras manos.
+  const blob = await downscaleForUpload(shot, AI_UPLOAD_MAX_PX);
 
   const form = new FormData();
   form.append('prompt', getPrompt(style, group));
@@ -175,6 +179,28 @@ async function aspectRatioOf(shot) {
     )[0];
   } catch {
     return null; // si falla, que decida el backend
+  }
+}
+
+/**
+ * Reduce la foto antes de subirla, manteniendo la proporcion.
+ * Si algo falla, se sube tal cual: mejor lenta que ninguna.
+ */
+async function downscaleForUpload(shot, maxPx) {
+  try {
+    const img = await loadImage(shot.dataUrl);
+    const lado = Math.max(img.width, img.height);
+    if (lado <= maxPx) return await asBlob(shot);
+
+    const escala = maxPx / lado;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.width * escala);
+    canvas.height = Math.round(img.height * escala);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    return await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.88));
+  } catch {
+    return await asBlob(shot);
   }
 }
 

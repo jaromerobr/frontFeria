@@ -7,6 +7,7 @@ import PreviewScreen from './screens/PreviewScreen.jsx';
 import UserDataScreen from './screens/UserDataScreen.jsx';
 import GroupScreen from './screens/GroupScreen.jsx';
 import SocialScreen from './screens/SocialScreen.jsx';
+import DeliveryScreen from './screens/DeliveryScreen.jsx';
 import StyleScreen from './screens/StyleScreen.jsx';
 import SendingScreen from './screens/SendingScreen.jsx';
 import ProcessingScreen from './screens/ProcessingScreen.jsx';
@@ -31,6 +32,7 @@ import {
   SESSION_WARNING_SECONDS,
   QUEUE_RETRY_MS,
   PROCESSING_MIN_MS,
+  DELIVERY_MODE,
 } from './config.js';
 
 /**
@@ -51,6 +53,7 @@ const SCREENS = {
   COUNTDOWN: 'COUNTDOWN',
   PROCESSING: 'PROCESSING',
   PREVIEW: 'PREVIEW',
+  DELIVERY: 'DELIVERY',
   FORM: 'FORM',
   SENDING: 'SENDING',
   SUCCESS: 'SUCCESS',
@@ -237,7 +240,13 @@ export default function App() {
     }
   };
 
-  const handleAccept = () => setScreen(SCREENS.FORM);
+  /**
+   * Aceptar la foto lleva a una cosa o a otra segun como se entregue:
+   * el QR de descarga (lo normal en feria) o el formulario dentro del
+   * totem. Se cambia con VITE_DELIVERY.
+   */
+  const handleAccept = () =>
+    setScreen(DELIVERY_MODE === 'form' ? SCREENS.FORM : SCREENS.DELIVERY);
 
   const handleRetake = () => {
     generatedByStyle.current.clear();
@@ -325,7 +334,10 @@ export default function App() {
           <CountdownScreen
             group={group}
             onFinish={handleCountdownFinish}
-            onCancel={resetSession}
+            /* Cancelar no echa a la persona al inicio: la devuelve a
+               elegir estilo, que es de donde vino. Empezar de cero
+               por arrepentirse de un estilo es castigo, no ayuda. */
+            onCancel={() => setScreen(SCREENS.STYLE)}
           />
         );
 
@@ -349,6 +361,16 @@ export default function App() {
             photo={photo}
             onSubmit={handleSubmit}
             onBack={() => setScreen(SCREENS.PREVIEW)}
+          />
+        );
+
+      case SCREENS.DELIVERY:
+        return (
+          <DeliveryScreen
+            photo={photo}
+            style={style}
+            group={group}
+            onDone={resetSession}
           />
         );
 

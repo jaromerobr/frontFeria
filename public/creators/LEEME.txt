@@ -1,0 +1,9 @@
+Logos de las empresas que hicieron el totem (NODO, QUOHUB, etc.).
+
+Deja aqui el archivo (SVG o PNG con fondo transparente) y agregalo en
+src/creators.js:
+
+    { name: 'QUOHUB', logo: '/creators/quohub.svg' },
+
+Mientras el archivo no exista, el slider muestra el nombre en texto
+grande, asi que ya se puede ver como queda.

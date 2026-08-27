@@ -682,7 +682,44 @@ de fondo vacio alrededor. Es el error clasico al pasar de monitor horizontal a t
 
 ---
 
-## 20. Salidas y puntero
+## 20. La bienvenida: quien la hizo, y como recibe la foto la gente
+
+### Empresas creadoras rotando
+
+Donde estaba el titulo del evento van ahora **las empresas que hicieron el totem**, una a
+la vez y grande ([CreatorsSlider.jsx](src/components/CreatorsSlider.jsx)). Una sola a la
+vez y no todas juntas: en una feria la pantalla se mira dos segundos de reojo, y cinco
+logos pequenos no los lee nadie.
+
+Se agregan en [creators.js](src/creators.js):
+
+```js
+{ name: 'QUOHUB', logo: '/creators/quohub.svg' },
+```
+
+Mientras el logo no exista, se muestra **el nombre en texto grande**, asi que se puede ver
+como queda antes de tener los archivos. Los logos van en `public/creators/`.
+
+### La foto se entrega por QR
+
+Al aceptar la foto, el totem sube la imagen y muestra un **codigo QR grande**: la persona
+escanea, y en su celular descarga la foto y deja sus datos
+([DeliveryScreen.jsx](src/screens/DeliveryScreen.jsx)).
+
+Es lo practico en una feria: nadie escribe un correo con el teclado en pantalla —que es
+donde mas se equivoca la gente y donde mas se atasca la fila—, cada quien teclea en el
+teclado al que esta acostumbrado, y el totem queda libre para el siguiente en cuanto ve el
+codigo.
+
+El QR se genera **en el momento**, porque el enlace lo devuelve el backend recien cuando
+sube la foto: no puede estar hecho de antes.
+
+El formulario dentro del totem **sigue completo** y se vuelve a activar con
+`VITE_DELIVERY=form`, por si el backend no llega a tener la pagina de descarga.
+
+---
+
+## 21. Salidas y puntero
 
 **Boton de inicio.** Arriba a la izquierda, con el logo de NODO, en todas las pantallas
 menos tres: la de inicio (ya es el inicio), la de envio (hay datos viajando y cortar ahi
@@ -708,7 +745,7 @@ se esta apuntando.
 
 ---
 
-## 21. Cuanto cuesta cada foto (y como no gastar de mas)
+## 22. Cuanto cuesta cada foto (y como no gastar de mas)
 
 Cada imagen generada con Gemini **se paga**. El totem esta hecho para pedir
 **exactamente las que la persona quiso ver, ni una mas**:
@@ -742,7 +779,7 @@ que se manda, no el flujo.
 
 ---
 
-## 22. Responsive: como se comprueba
+## 23. Responsive: como se comprueba
 
 En un totem **no hay scroll ni forma de mover la vista**. Un boton que se sale de la
 pantalla es un boton que no existe, y la persona se queda atascada. Por eso el responsive
@@ -788,7 +825,7 @@ numeros + 3 filas de letras). Si vas a tocar CSS, prueba esas dos primero.
 
 ---
 
-## 23. Que falta para tener el frontend completo
+## 24. Que falta para tener el frontend completo
 
 ### Hecho
 
@@ -802,6 +839,11 @@ numeros + 3 filas de letras). Si vas a tocar CSS, prueba esas dos primero.
 - [x] Documento de integracion para el backend ([INTEGRACION.md](INTEGRACION.md))
 
 ### Falta
+
+- [ ] **Logos de las empresas creadoras** (NODO ya esta; faltan QUOHUB y las demas).
+      Van en `public/creators/` y se anaden en [creators.js](src/creators.js).
+- [ ] **Pagina de descarga** a la que apunta el QR: la levanta el backend. Mientras no
+      exista, el totem funciona en modo simulado o con el formulario (`VITE_DELIVERY=form`).
 
 - [ ] **Probarlo en el monitor fisico del totem.** El layout esta verificado a la
       resolucion real, pero no sobre el vidrio: falta comprobar tamano real de las teclas

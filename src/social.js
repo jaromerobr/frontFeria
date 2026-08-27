@@ -12,6 +12,10 @@
  *  contacto despues de la feria, que es lo que de verdad
  *  interesa.
  *
+ *  Son CUATRO, no cinco: se quito X para que la rejilla quede
+ *  cuadrada (2 arriba y 2 abajo). En vertical una fila de cinco se
+ *  ve floja y los codigos salen pequenos.
+ *
  *  Los QR estan generados como SVG en public/qr/, asi que
  *  funcionan sin internet. Para regenerarlos despues de cambiar
  *  un enlace:
@@ -41,13 +45,6 @@ export const SOCIAL_LINKS = [
     handle: '@nodocia',
     url: 'https://www.instagram.com/nodocia/',
     color: '#c13584',
-  },
-  {
-    id: 'x',
-    name: 'X',
-    handle: '@nodo_cia',
-    url: 'https://x.com/nodo_cia',
-    color: '#181410',
   },
   {
     id: 'youtube',
