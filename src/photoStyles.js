@@ -17,33 +17,41 @@
  *  Los prompts estan en ingles a proposito: todos los modelos de
  *  imagen responden mejor en ingles, incluso para temas locales.
  *
- *  SOBRE MARCAS: ningun prompt nombra franquicias (Dragon Ball, los
- *  Simpson, Disney...). Estan escritos como descripciones de genero
- *  por dos razones: es un evento publico con auspiciantes, y los
- *  modelos rechazan o degradan los prompts con personajes protegidos.
- *  El aire es el mismo y el resultado sale mejor.
+ *  SOBRE MARCAS: cuatro estilos nombran franquicias (Dragon Ball, los
+ *  Simpson, Disney, Pixar). Es una decision del cliente, tomada porque
+ *  sin nombrarlas el modelo no acierta el estilo. Queda anotado aqui
+ *  porque es un evento publico con auspiciantes: si algun dia hay que
+ *  quitarlas, son esas cuatro y se cambian en su `ai.style`.
  * ============================================================
  */
 
 /**
  * Instruccion que va DELANTE de todos los prompts.
  *
- * Le dice al modelo que NO invente a nadie: tiene que partir de la foto
- * que le mandamos y devolver a ESAS personas dibujadas. Sin esto, los
- * modelos generan caras cualquiera con el estilo pedido y la gente no se
- * reconoce, que es lo unico que importa en un totem.
+ * Dice tres cosas, y las tres importan:
+ *
+ *   1. Que la imagen adjunta es una FOTO TOMADA EN VIVO por la camara
+ *      del totem, ahora mismo. Sin esa frase los modelos la tratan como
+ *      una referencia de estilo mas y devuelven a otra persona.
+ *   2. Que esa foto es la UNICA referencia de quien aparece.
+ *   3. Cuanta gente hay, y que no agregue ni quite a nadie.
+ *
+ * Sin esto los modelos generan caras cualquiera con el estilo pedido y
+ * la gente no se reconoce, que es lo unico que importa en un totem.
  *
  * Depende del grupo: en fotos de a varios hay que prohibir expresamente
  * agregar o quitar gente, que es la falla favorita de los modelos ahi.
  */
 export function buildInstruction(group) {
   return (
-    `Use the provided photograph as the base image. It shows ${group.subject}. ` +
-    `Redraw the same real ${group.people} from that photo in the style described ` +
-    'below. Keep their identity, face shape, hair, skin tone, glasses and clothing ' +
-    'recognizable, and keep the same pose, the same number of people and the same ' +
-    'framing. Do not add or remove people, do not invent different faces, and do ' +
-    'not add any text.'
+    'The attached image is a live photograph that was just taken by this photo ' +
+    'booth kiosk camera. Use that photograph as the base image and as the only ' +
+    `reference for who appears. It shows ${group.subject}. Redraw the same real ` +
+    `${group.people} from that photograph in the style described below, keeping ` +
+    'their identity, face shape, hair, skin tone, glasses and clothing clearly ' +
+    'recognizable, and keeping the same pose, the same number of people and the ' +
+    'same framing. Do not add or remove people, do not replace anyone with a ' +
+    'different face, and do not add any text.'
   );
 }
 
@@ -144,17 +152,19 @@ const STYLE_DEFS = [
   },
   {
     id: 'anime-90',
-    name: 'Guerrero Anime',
-    tagline: 'Aura de energia y pelo al viento',
+    name: 'Dragon Ball',
+    tagline: 'Aura de energia',
+    reference: '/styles/anime-90.jpg',
     groups: ['personal'],
     swatch: ['#ff8a00', '#2b6cff', '#ffe66b'],
     local: LOOKS.vivo({ bg: '#ff8a00', title: '#fff8e6', foot: '#2b6cff' }),
     ai: {
       style:
-        '1990s Japanese fighting anime cel style, spiky windblown hair, glowing ' +
-        'golden energy aura surrounding the body, dramatic speed lines, cracked ' +
-        'rocky battlefield, stormy sky with lightning, bold cel shading with hard ' +
-        'shadows, intense determined expression, vibrant saturated colors',
+        'Dragon Ball Z anime art style by Akira Toriyama, 1990s cel animation, ' +
+        'spiky windblown hair, glowing golden energy aura surrounding the body, ' +
+        'dramatic speed lines, cracked rocky battlefield, stormy sky with lightning, ' +
+        'bold cel shading with hard shadows, intense determined expression, ' +
+        'vibrant saturated colors',
       strength: 0.62,
     },
   },
@@ -162,6 +172,7 @@ const STYLE_DEFS = [
     id: 'astronauta',
     name: 'Astronauta',
     tagline: 'Al espacio desde Loja',
+    reference: '/styles/astronauta.jpg',
     groups: ['personal'],
     swatch: ['#0b1b3a', '#c9d6e8', '#ff5a3c'],
     local: LOOKS.suave({ bg: '#0b1b3a', title: '#ffffff', foot: '#ff5a3c' }),
@@ -205,6 +216,7 @@ const STYLE_DEFS = [
     id: 'san-valentin',
     name: 'San Valentin',
     tagline: 'Postal de enamorados',
+    reference: '/styles/san-valentin.jpg',
     groups: ['pareja'],
     swatch: ['#ff5c8a', '#ffd9e3', '#c1121f'],
     local: LOOKS.suave({ bg: '#ff5c8a', title: '#fff5f8', foot: '#c1121f' }),
@@ -219,8 +231,9 @@ const STYLE_DEFS = [
   },
   {
     id: 'paris',
-    name: 'En Paris',
+    name: 'Paris',
     tagline: 'Bajo la torre Eiffel',
+    reference: '/styles/paris.jpg',
     groups: ['pareja'],
     swatch: ['#8fb8d8', '#e8d9c0', '#3b4a5a'],
     local: LOOKS.suave({ bg: '#3b4a5a', title: '#f3ece0', foot: '#8fb8d8' }),
@@ -235,8 +248,9 @@ const STYLE_DEFS = [
   },
   {
     id: 'montana-rusa',
-    name: 'Montana Rusa',
+    name: 'Montaña Rusa',
     tagline: 'La foto de la caida',
+    reference: '/styles/montana-rusa.jpg',
     groups: ['pareja', 'ninos'],
     swatch: ['#ffd400', '#e63946', '#3aa8ff'],
     local: LOOKS.vivo({ bg: '#e63946', title: '#fffbe6', foot: '#3aa8ff' }),
@@ -251,8 +265,9 @@ const STYLE_DEFS = [
   },
   {
     id: 'escena-cine',
-    name: 'Escena de Cine',
+    name: 'Cine',
     tagline: 'Como una pelicula',
+    reference: '/styles/escena-cine.jpg',
     groups: ['pareja'],
     swatch: ['#1b2430', '#d9a066', '#f2e8dc'],
     local: LOOKS.foto({ bg: '#1b2430', title: '#f2e8dc', foot: '#d9a066' }),
@@ -286,50 +301,59 @@ const STYLE_DEFS = [
   },
   {
     id: 'caricatura-amarilla',
-    name: 'Caricatura Amarilla',
-    tagline: 'Familia de dibujos animados',
+    name: 'Los Simpson',
+    tagline: 'La familia amarilla',
+    reference: '/styles/caricatura-amarilla.jpg',
     groups: ['familia'],
     swatch: ['#ffd90f', '#3aa8ff', '#e63946'],
     local: LOOKS.vivo({ bg: '#ffd90f', title: '#2b2b2b', foot: '#3aa8ff' }),
     ai: {
       style:
-        'american prime time cartoon family style, flat bright yellow skin, simple ' +
-        'thick black outlines, large round white eyes with small pupils, overbite ' +
-        'smiles, flat solid colors with no gradients, suburban living room with a ' +
-        'couch in the background, cheerful satirical sitcom look',
+        'Create an original 2D cartoon illustration of a family in the style of The Simpsons by Matt Groening. Use a very bright, saturated, unmistakably yellow skin color for all human characters, similar to a vivid golden yellow. The skin must look clearly yellow, not tan, brown, beige, orange, peach, or realistic human skin tones. Avoid muted or dark yellow tones. Use bold black outlines, large round expressive eyes, simple geometric shapes, exaggerated facial expressions, and clean flat coloring. The characters must keep the faces, hairstyles, clothing and expressions of the real people in the attached photograph, redrawn in that cartoon style so that each person is still recognizable. High-quality digital illustration, vibrant colors, clean composition, and consistent bright yellow skin across all characters.',
       strength: 0.65,
     },
   },
   {
     id: 'feria-loja',
-    name: 'En la Feria',
-    tagline: 'La Feria de Loja de fondo',
+    name: 'Feria de Loja',
+    tagline: 'La feria de fondo',
+    reference: '/styles/feria-loja.jpg',
     groups: ['familia', 'pareja', 'ninos'],
     swatch: ['#e0403a', '#f0b13c', '#2f9c8e'],
     local: LOOKS.tinta({ bg: '#2f9c8e', title: '#f6e7c8', foot: '#f0b13c' }),
     ai: {
       style:
-        'lively andean fair illustration, colorful market stalls with fabric ' +
-        'awnings, strings of triangular bunting flags and warm string lights, ' +
-        'carousel and ferris wheel in the distance, mountains of southern Ecuador ' +
-        'at sunset, straw hats and embroidered textiles, festive folk art poster ' +
-        'style with flat saturated colors and ink outlines',
+        'Create a realistic candid photograph of the family from the provided reference image visiting the Feria de Loja in Loja, Ecuador. ' +
+        'Preserve the exact identity, facial features, body proportions, skin tones, and overall appearance of every person from the reference image. ' +
+        'The scene should look like a genuine photograph taken spontaneously during their visit to the real Feria de Loja, not a staged promotional image. ' +
+        'Show the family naturally walking through the fairgrounds, talking, laughing, looking around, or casually enjoying the event instead of standing in a perfectly posed group. ' +
+        'Use an authentic fair environment with realistic crowds, exhibition areas, colorful stalls, event lights, decorations, and recognizable details of a large Ecuadorian fair. ' +
+        'Capture the atmosphere naturally, as if a professional photographer happened to take the photo while the family was visiting the Feria de Loja. ' +
+        'Use realistic late afternoon or early evening lighting, natural shadows, authentic skin tones, documentary-style photography, subtle cinematic quality, and realistic depth of field. ' +
+        'Avoid illustration, cartoon, animation, folk-art style, artificial posing, exaggerated colors, overly perfect backgrounds, or generic amusement park scenery. ' +
+        'The final image must look like an authentic real-life photograph of this specific family spending time at the Feria de Loja.',
       strength: 0.6,
     },
   },
   {
     id: 'nasa',
-    name: 'Mision Espacial',
-    tagline: 'Tripulacion lista para despegar',
+    name: 'NASA',
+    tagline: 'Listos para despegar',
+    reference: '/styles/nasa.jpg',
     groups: ['familia'],
     swatch: ['#c9d6e8', '#0b1b3a', '#ff5a3c'],
     local: LOOKS.foto({ bg: '#0b1b3a', title: '#ffffff', foot: '#ff5a3c' }),
     ai: {
       style:
-        'space agency crew portrait, everyone wearing matching orange flight suits, ' +
-        'standing in front of a rocket on the launch pad at sunrise, mission ' +
-        'control gantry behind, proud heroic poses, crisp editorial photography, ' +
-        'clean blue and orange palette',
+          'realistic cinematic photograph of a space agency crew inside a spacecraft traveling through outer space, everyone wearing matching orange flight suits, ' +
+          'naturally positioned inside the spacecraft cabin, interacting with control panels, navigation systems, and each other, ' +
+          'large spacecraft windows showing the Earth, stars, and deep space outside, ' +
+          'subtle zero-gravity atmosphere with small objects gently floating, realistic spacecraft interior with advanced technology and illuminated control panels, ' +
+          'candid documentary-style moment as if the crew was photographed during an actual space mission, ' +
+          'not a posed promotional portrait, natural expressions and authentic interactions, ' +
+          'cinematic realistic lighting coming from the spacecraft windows and control panels, ' +
+          'highly detailed photorealistic editorial photography, realistic skin tones, natural body proportions, dramatic but believable space environment, ' +
+          'avoid cartoon, illustration, artificial heroic poses, launch pad, rocket exterior, or studio portrait appearance',
       strength: 0.5,
     },
   },
@@ -337,23 +361,24 @@ const STYLE_DEFS = [
   /* ============================ NINOS ============================ */
   {
     id: 'parque-magico',
-    name: 'Parque Magico',
+    name: 'Disney',
     tagline: 'Castillo y fuegos artificiales',
+    reference: '/styles/parque-magico.jpg',
     groups: ['ninos', 'familia'],
     swatch: ['#8f6bff', '#ffd9f2', '#4cc9f0'],
     local: LOOKS.suave({ bg: '#8f6bff', title: '#fff5ff', foot: '#4cc9f0' }),
     ai: {
       style:
-        'magical fairytale theme park at night, tall fantasy castle with turrets ' +
-        'glowing in the background, fireworks bursting in the purple sky, floating ' +
-        'sparkles, pastel lavender and pink palette, wide eyed wonder, dreamy ' +
-        'storybook illustration, joyful and innocent',
+        'Disney animation style, standing in front of the Disneyland castle at ' +
+        'night, tall fairytale castle with glowing turrets, fireworks bursting in ' +
+        'the purple sky, floating sparkles, pastel lavender and pink palette, ' +
+        'wide eyed wonder, dreamy storybook illustration, joyful and innocent',
       strength: 0.6,
     },
   },
   {
     id: 'muneco-3d',
-    name: 'Muneco 3D',
+    name: 'Pixar',
     tagline: 'Como de pelicula animada',
     groups: ['ninos', 'familia'],
     swatch: ['#7fd1ff', '#ffb3c7', '#ffd97d'],
@@ -368,10 +393,10 @@ const STYLE_DEFS = [
     },
     ai: {
       style:
-        'cute 3d animated movie character style, stylized big head proportions, ' +
+        'Pixar 3D animated movie character style, stylized big head proportions, ' +
         'soft rounded shapes, subsurface skin shading, glossy expressive eyes, ' +
-        'warm cinematic lighting, modern animation studio render, colorful simple ' +
-        'background, wholesome and funny',
+        'warm cinematic lighting, high quality animation studio render, colorful ' +
+        'simple background, wholesome and funny',
       strength: 0.58,
     },
   },
@@ -379,22 +404,28 @@ const STYLE_DEFS = [
     id: 'super-heroes',
     name: 'Super Heroes',
     tagline: 'Capa y ciudad al fondo',
+    reference: '/styles/super-heroes.jpg',
     groups: ['ninos'],
     swatch: ['#e63946', '#2b6cff', '#ffd400'],
     local: LOOKS.vivo({ bg: '#2b6cff', title: '#fffbe6', foot: '#ffd400' }),
     ai: {
       style:
-        'kid superhero illustration, colorful cape flowing in the wind, confident ' +
-        'hands on hips hero pose, city skyline at golden hour below, comic book ' +
-        'color palette with bold outlines and dynamic action lines, empowering and ' +
-        'cheerful, no logos or emblems',
+          'photorealistic cinematic portrait of the child from the provided reference photo as a young superhero, ' +
+          'preserve the child’s exact facial features, identity, skin tone, hairstyle, body proportions, and overall appearance from the reference image, ' +
+          'wearing a realistic superhero-inspired outfit with a colorful cape gently flowing in the wind, no logos or recognizable emblems, ' +
+          'standing confidently in a natural heroic pose, hands on hips, overlooking a realistic city skyline during golden hour, ' +
+          'warm sunset light, natural shadows, realistic fabric textures, cinematic depth of field, subtle wind movement, ' +
+          'professional movie-style photography, highly detailed, realistic skin texture and natural facial expression, ' +
+          'empowering and cheerful atmosphere, believable real-world environment, ' +
+          'avoid cartoon, comic book illustration, bold outlines, exaggerated action lines, animated appearance, or unrealistic proportions',
       strength: 0.62,
     },
   },
   {
     id: 'dino-aventura',
-    name: 'Aventura Dino',
-    tagline: 'Con dinosaurios amigables',
+    name: 'Dinosaurios',
+    tagline: 'Aventura en la jungla',
+    reference: '/styles/dino-aventura.jpg',
     groups: ['ninos'],
     swatch: ['#3aa86b', '#ffd400', '#8a5a2b'],
     local: LOOKS.vivo({ bg: '#3aa86b', title: '#fffbe6', foot: '#ffd400' }),

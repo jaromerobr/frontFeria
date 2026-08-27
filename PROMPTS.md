@@ -21,24 +21,26 @@ cualquiera con el estilo pedido, y nadie se reconoce — que es lo unico que imp
 totem.
 
 Por eso todos los prompts empiezan con la misma instruccion, que el codigo pega solo
-(`buildInstruction()` en [photoStyles.js](src/photoStyles.js)) y que **cambia segun el
-grupo**: le dice cuanta gente hay y le prohibe agregar o quitar personas, que es la falla
-favorita de los modelos en fotos de grupo.
+(`buildInstruction()` en [photoStyles.js](src/photoStyles.js)) y que dice tres cosas:
+
+1. Que la imagen adjunta es una **foto tomada en vivo por la camara del totem, ahora
+   mismo**. Sin esa frase los modelos la tratan como una referencia de estilo mas y
+   devuelven a otra persona.
+2. Que esa foto es la **unica referencia** de quien aparece.
+3. **Cuanta gente hay** (segun el grupo) y que no agregue ni quite a nadie, que es la falla
+   favorita de los modelos en fotos de grupo.
 
 Al probar a mano: **adjunta la foto** y usa el modo img2img / "editar imagen" / "referencia
 de imagen". Pegar solo el texto no sirve de nada.
 
-### 2. Ningun prompt nombra marcas
+### 2. Cuatro estilos nombran marcas
 
-Nada de Dragon Ball, los Simpson, Disney o Mickey Mouse. Estan escritos como
-**descripciones de genero** ("anime de peleas de los 90", "caricatura amarilla de sitcom
-americana", "parque de fantasia con castillo") por dos razones:
+`Dragon Ball`, `Los Simpson`, `Disney` y `Pixar` nombran la franquicia en el prompt. Es
+una **decision del cliente**, tomada porque sin nombrarlas el modelo no acierta el estilo:
+descrito como genero ("anime de peleas de los 90") el resultado no se parece.
 
-- Es un evento publico con auspiciantes, y esas marcas estan registradas.
-- Los modelos **rechazan o degradan** los prompts con personajes protegidos, asi que el
-  resultado sale peor justo cuando los nombras.
-
-El aire es el mismo. Si NODO decide asumir el riesgo, cambiar un prompt es una linea.
+Queda anotado porque es un evento publico con auspiciantes y esas marcas estan
+registradas. Si algun dia hay que quitarlas, son esas cuatro y se cambia su `ai.style`.
 
 ---
 
@@ -100,13 +102,14 @@ Cuatro grupos, los cuatro necesarios:
 
 ## Imagenes de ejemplo del selector
 
-Solo cuatro estilos tienen imagen de referencia: `rubber-hose`, `mundial-2026`, `cabezon`
-y `muneco-3d`. El resto muestra la miniatura generada por el filtro local.
+**Los 16 estilos tienen su imagen de ejemplo** en `public/styles/<id>.jpg`, reducidas a
+720 px (los originales quedan en `refs/`, fuera del repositorio).
 
-Para agregar las que faltan: generar la imagen con su prompt y guardarla como
-`public/styles/<id>.jpg` (720 px de ancho basta). Aparece sola, sin tocar codigo.
+Para cambiar una: generar la imagen con su prompt y guardarla con el mismo nombre.
+Aparece sola, sin tocar codigo.
 
 ---
+
 
 ## 🙋 Solo — `personal`
 
@@ -115,7 +118,7 @@ Cuenta regresiva: **10 s**. La IA recibe: *"one single person"*.
 | Estilo | id | Strength |
 |---|---|---|
 | Mundial 2026 | `mundial-2026` | 0.45 |
-| Guerrero Anime | `anime-90` | 0.62 |
+| Dragon Ball | `anime-90` | 0.62 |
 | Astronauta | `astronauta` | 0.5 |
 | Cabezon | `cabezon` | 0.6 |
 
@@ -124,30 +127,34 @@ Cuenta regresiva: **10 s**. La IA recibe: *"one single person"*.
 Tu cromo de la seleccion. Strength **0.45**.
 
 ```
-Use the provided photograph as the base image. It shows one single person. Redraw the same
-real person from that photo in the style described below. Keep their identity, face shape,
-hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same number
-of people and the same framing. Do not add or remove people, do not invent different faces,
-and do not add any text. Style: modern football collectible sticker portrait, glossy trading
-card look, wearing a bright yellow Ecuador national football jersey with navy blue collar,
-vivid turquoise and yellow graphic background with bold abstract shapes, flag colors of
-Ecuador, crisp modern sports studio lighting, high saturation, clean vector shapes, no text
-anywhere in the image
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one single person. Redraw the same real person from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: modern football collectible sticker portrait, glossy trading card
+look, wearing a bright yellow Ecuador national football jersey with navy blue collar, vivid
+turquoise and yellow graphic background with bold abstract shapes, flag colors of Ecuador,
+crisp modern sports studio lighting, high saturation, clean vector shapes, no text anywhere
+in the image
 ```
 
-### Guerrero Anime — `anime-90`
+### Dragon Ball — `anime-90`
 
-Aura de energia y pelo al viento. Strength **0.62**.
+Aura de energia. Strength **0.62**.
 
 ```
-Use the provided photograph as the base image. It shows one single person. Redraw the same
-real person from that photo in the style described below. Keep their identity, face shape,
-hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same number
-of people and the same framing. Do not add or remove people, do not invent different faces,
-and do not add any text. Style: 1990s Japanese fighting anime cel style, spiky windblown
-hair, glowing golden energy aura surrounding the body, dramatic speed lines, cracked rocky
-battlefield, stormy sky with lightning, bold cel shading with hard shadows, intense
-determined expression, vibrant saturated colors
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one single person. Redraw the same real person from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: Dragon Ball Z anime art style by Akira Toriyama, 1990s cel
+animation, spiky windblown hair, glowing golden energy aura surrounding the body, dramatic
+speed lines, cracked rocky battlefield, stormy sky with lightning, bold cel shading with
+hard shadows, intense determined expression, vibrant saturated colors
 ```
 
 ### Astronauta — `astronauta`
@@ -155,14 +162,15 @@ determined expression, vibrant saturated colors
 Al espacio desde Loja. Strength **0.5**.
 
 ```
-Use the provided photograph as the base image. It shows one single person. Redraw the same
-real person from that photo in the style described below. Keep their identity, face shape,
-hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same number
-of people and the same framing. Do not add or remove people, do not invent different faces,
-and do not add any text. Style: astronaut portrait, wearing a white space suit with the
-visor open, orbital station interior behind, Earth visible through a round window, cinematic
-space photography lighting, crisp detail, deep blue and white palette with warm orange
-accents
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one single person. Redraw the same real person from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: astronaut portrait, wearing a white space suit with the visor open,
+orbital station interior behind, Earth visible through a round window, cinematic space
+photography lighting, crisp detail, deep blue and white palette with warm orange accents
 ```
 
 ### Cabezon — `cabezon`
@@ -170,11 +178,13 @@ accents
 Cabeza gigante, cuerpo chiquito. Strength **0.6**.
 
 ```
-Use the provided photograph as the base image. It shows one single person. Redraw the same
-real person from that photo in the style described below. Keep their identity, face shape,
-hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same number
-of people and the same framing. Do not add or remove people, do not invent different faces,
-and do not add any text. Style: funny caricature, oversized head on a small cartoon body,
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one single person. Redraw the same real person from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: funny caricature, oversized head on a small cartoon body,
 exaggerated friendly features, big expressive eyes and huge smile, smooth cel shading,
 bright saturated colors, modern cartoon illustration, theme park caricature artist style,
 playful and flattering, family friendly
@@ -189,70 +199,78 @@ Cuenta regresiva: **12 s**. La IA recibe: *"a couple of exactly two people stand
 | Estilo | id | Strength |
 |---|---|---|
 | San Valentin | `san-valentin` | 0.58 |
-| En Paris | `paris` | 0.58 |
-| Montana Rusa | `montana-rusa` | 0.6 |
-| Escena de Cine | `escena-cine` | 0.5 |
+| Paris | `paris` | 0.58 |
+| Montaña Rusa | `montana-rusa` | 0.6 |
+| Cine | `escena-cine` | 0.5 |
 | Rubber Hose | `rubber-hose` | 0.62 |
-| En la Feria | `feria-loja` | 0.6 |
+| Feria de Loja | `feria-loja` | 0.6 |
 
 ### San Valentin — `san-valentin`
 
 Postal de enamorados. Strength **0.58**.
 
 ```
-Use the provided photograph as the base image. It shows a couple of exactly two people
-standing together. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: romantic valentine
-postcard illustration, soft watercolor and gouache, floating paper hearts and rose petals,
-warm pink and red palette, golden bokeh lights, tender affectionate mood, hand painted
-vintage greeting card look
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a couple of exactly two people standing together. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: romantic valentine postcard illustration,
+soft watercolor and gouache, floating paper hearts and rose petals, warm pink and red
+palette, golden bokeh lights, tender affectionate mood, hand painted vintage greeting card
+look
 ```
 
-### En Paris — `paris`
+### Paris — `paris`
 
 Bajo la torre Eiffel. Strength **0.58**.
 
 ```
-Use the provided photograph as the base image. It shows a couple of exactly two people
-standing together. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: vintage travel
-postcard illustration of Paris, Eiffel tower in the background, cobblestone street with a
-cafe terrace, soft watercolor wash with ink linework, warm golden hour light, dusty blue and
-cream palette, romantic european holiday mood
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a couple of exactly two people standing together. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: vintage travel postcard illustration of
+Paris, Eiffel tower in the background, cobblestone street with a cafe terrace, soft
+watercolor wash with ink linework, warm golden hour light, dusty blue and cream palette,
+romantic european holiday mood
 ```
 
-### Montana Rusa — `montana-rusa`
+### Montaña Rusa — `montana-rusa`
 
 La foto de la caida. Strength **0.6**.
 
 ```
-Use the provided photograph as the base image. It shows a couple of exactly two people
-standing together. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: hilarious amusement
-park roller coaster drop photo, wind blowing hair straight back, exaggerated screaming and
-laughing faces, motion blur streaks, bright carnival colors, blue sky, colorful roller
-coaster track, cartoon comedy energy, family friendly fun
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a couple of exactly two people standing together. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: hilarious amusement park roller coaster drop
+photo, wind blowing hair straight back, exaggerated screaming and laughing faces, motion
+blur streaks, bright carnival colors, blue sky, colorful roller coaster track, cartoon
+comedy energy, family friendly fun
 ```
 
-### Escena de Cine — `escena-cine`
+### Cine — `escena-cine`
 
 Como una pelicula. Strength **0.5**.
 
 ```
-Use the provided photograph as the base image. It shows a couple of exactly two people
-standing together. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: cinematic romantic
-movie still, anamorphic wide shot, dramatic teal and orange color grading, shallow depth of
-field, warm rim lighting, rain slicked city street at night with glowing signs, film grain,
-emotional storytelling frame, no text or title cards
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a couple of exactly two people standing together. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: cinematic romantic movie still, anamorphic
+wide shot, dramatic teal and orange color grading, shallow depth of field, warm rim
+lighting, rain slicked city street at night with glowing signs, film grain, emotional
+storytelling frame, no text or title cards
 ```
 
 ### Rubber Hose — `rubber-hose`
@@ -260,30 +278,45 @@ emotional storytelling frame, no text or title cards
 Caricatura de los anos 30. Strength **0.62**.
 
 ```
-Use the provided photograph as the base image. It shows a couple of exactly two people
-standing together. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: 1930s rubber hose
-cartoon group portrait, cream and vermillion two color print, thick black ink outlines,
-round pie-cut eyes, big friendly smiles, white gloves aesthetic, looping curved limbs, hand
-inked vintage animation cel, aged paper with light speckles, warm and family friendly
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a couple of exactly two people standing together. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: 1930s rubber hose cartoon group portrait,
+cream and vermillion two color print, thick black ink outlines, round pie-cut eyes, big
+friendly smiles, white gloves aesthetic, looping curved limbs, hand inked vintage animation
+cel, aged paper with light speckles, warm and family friendly
 ```
 
-### En la Feria — `feria-loja`
+### Feria de Loja — `feria-loja`
 
-La Feria de Loja de fondo. Strength **0.6**.
+La feria de fondo. Strength **0.6**.
 
 ```
-Use the provided photograph as the base image. It shows a couple of exactly two people
-standing together. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: lively andean fair
-illustration, colorful market stalls with fabric awnings, strings of triangular bunting
-flags and warm string lights, carousel and ferris wheel in the distance, mountains of
-southern Ecuador at sunset, straw hats and embroidered textiles, festive folk art poster
-style with flat saturated colors and ink outlines
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a couple of exactly two people standing together. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: Create a realistic candid photograph of the
+family from the provided reference image visiting the Feria de Loja in Loja, Ecuador.
+Preserve the exact identity, facial features, body proportions, skin tones, and overall
+appearance of every person from the reference image. The scene should look like a genuine
+photograph taken spontaneously during their visit to the real Feria de Loja, not a staged
+promotional image. Show the family naturally walking through the fairgrounds, talking,
+laughing, looking around, or casually enjoying the event instead of standing in a perfectly
+posed group. Use an authentic fair environment with realistic crowds, exhibition areas,
+colorful stalls, event lights, decorations, and recognizable details of a large Ecuadorian
+fair. Capture the atmosphere naturally, as if a professional photographer happened to take
+the photo while the family was visiting the Feria de Loja. Use realistic late afternoon or
+early evening lighting, natural shadows, authentic skin tones, documentary-style
+photography, subtle cinematic quality, and realistic depth of field. Avoid illustration,
+cartoon, animation, folk-art style, artificial posing, exaggerated colors, overly perfect
+backgrounds, or generic amusement park scenery. The final image must look like an authentic
+real-life photograph of this specific family spending time at the Feria de Loja.
 ```
 
 ---
@@ -295,101 +328,138 @@ Cuenta regresiva: **15 s**. La IA recibe: *"a family group of several people of 
 | Estilo | id | Strength |
 |---|---|---|
 | Rubber Hose | `rubber-hose` | 0.62 |
-| Caricatura Amarilla | `caricatura-amarilla` | 0.65 |
-| En la Feria | `feria-loja` | 0.6 |
-| Mision Espacial | `nasa` | 0.5 |
-| Parque Magico | `parque-magico` | 0.6 |
-| Muneco 3D | `muneco-3d` | 0.58 |
+| Los Simpson | `caricatura-amarilla` | 0.65 |
+| Feria de Loja | `feria-loja` | 0.6 |
+| NASA | `nasa` | 0.5 |
+| Disney | `parque-magico` | 0.6 |
+| Pixar | `muneco-3d` | 0.58 |
 
 ### Rubber Hose — `rubber-hose`
 
 Caricatura de los anos 30. Strength **0.62**.
 
 ```
-Use the provided photograph as the base image. It shows a family group of several people of
-different ages. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: 1930s rubber hose
-cartoon group portrait, cream and vermillion two color print, thick black ink outlines,
-round pie-cut eyes, big friendly smiles, white gloves aesthetic, looping curved limbs, hand
-inked vintage animation cel, aged paper with light speckles, warm and family friendly
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a family group of several people of different ages. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: 1930s rubber hose cartoon group portrait,
+cream and vermillion two color print, thick black ink outlines, round pie-cut eyes, big
+friendly smiles, white gloves aesthetic, looping curved limbs, hand inked vintage animation
+cel, aged paper with light speckles, warm and family friendly
 ```
 
-### Caricatura Amarilla — `caricatura-amarilla`
+### Los Simpson — `caricatura-amarilla`
 
-Familia de dibujos animados. Strength **0.65**.
-
-```
-Use the provided photograph as the base image. It shows a family group of several people of
-different ages. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: american prime time
-cartoon family style, flat bright yellow skin, simple thick black outlines, large round
-white eyes with small pupils, overbite smiles, flat solid colors with no gradients, suburban
-living room with a couch in the background, cheerful satirical sitcom look
-```
-
-### En la Feria — `feria-loja`
-
-La Feria de Loja de fondo. Strength **0.6**.
+La familia amarilla. Strength **0.65**.
 
 ```
-Use the provided photograph as the base image. It shows a family group of several people of
-different ages. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: lively andean fair
-illustration, colorful market stalls with fabric awnings, strings of triangular bunting
-flags and warm string lights, carousel and ferris wheel in the distance, mountains of
-southern Ecuador at sunset, straw hats and embroidered textiles, festive folk art poster
-style with flat saturated colors and ink outlines
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a family group of several people of different ages. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: Create an original 2D cartoon illustration
+of a family in the style of The Simpsons by Matt Groening. Use a very bright, saturated,
+unmistakably yellow skin color for all human characters, similar to a vivid golden yellow.
+The skin must look clearly yellow, not tan, brown, beige, orange, peach, or realistic human
+skin tones. Avoid muted or dark yellow tones. Use bold black outlines, large round
+expressive eyes, simple geometric shapes, exaggerated facial expressions, and clean flat
+coloring. The characters must keep the faces, hairstyles, clothing and expressions of the
+real people in the attached photograph, redrawn in that cartoon style so that each person is
+still recognizable. High-quality digital illustration, vibrant colors, clean composition,
+and consistent bright yellow skin across all characters.
 ```
 
-### Mision Espacial — `nasa`
+### Feria de Loja — `feria-loja`
 
-Tripulacion lista para despegar. Strength **0.5**.
+La feria de fondo. Strength **0.6**.
 
 ```
-Use the provided photograph as the base image. It shows a family group of several people of
-different ages. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: space agency crew
-portrait, everyone wearing matching orange flight suits, standing in front of a rocket on
-the launch pad at sunrise, mission control gantry behind, proud heroic poses, crisp
-editorial photography, clean blue and orange palette
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a family group of several people of different ages. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: Create a realistic candid photograph of the
+family from the provided reference image visiting the Feria de Loja in Loja, Ecuador.
+Preserve the exact identity, facial features, body proportions, skin tones, and overall
+appearance of every person from the reference image. The scene should look like a genuine
+photograph taken spontaneously during their visit to the real Feria de Loja, not a staged
+promotional image. Show the family naturally walking through the fairgrounds, talking,
+laughing, looking around, or casually enjoying the event instead of standing in a perfectly
+posed group. Use an authentic fair environment with realistic crowds, exhibition areas,
+colorful stalls, event lights, decorations, and recognizable details of a large Ecuadorian
+fair. Capture the atmosphere naturally, as if a professional photographer happened to take
+the photo while the family was visiting the Feria de Loja. Use realistic late afternoon or
+early evening lighting, natural shadows, authentic skin tones, documentary-style
+photography, subtle cinematic quality, and realistic depth of field. Avoid illustration,
+cartoon, animation, folk-art style, artificial posing, exaggerated colors, overly perfect
+backgrounds, or generic amusement park scenery. The final image must look like an authentic
+real-life photograph of this specific family spending time at the Feria de Loja.
 ```
 
-### Parque Magico — `parque-magico`
+### NASA — `nasa`
+
+Listos para despegar. Strength **0.5**.
+
+```
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a family group of several people of different ages. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: realistic cinematic photograph of a space
+agency crew inside a spacecraft traveling through outer space, everyone wearing matching
+orange flight suits, naturally positioned inside the spacecraft cabin, interacting with
+control panels, navigation systems, and each other, large spacecraft windows showing the
+Earth, stars, and deep space outside, subtle zero-gravity atmosphere with small objects
+gently floating, realistic spacecraft interior with advanced technology and illuminated
+control panels, candid documentary-style moment as if the crew was photographed during an
+actual space mission, not a posed promotional portrait, natural expressions and authentic
+interactions, cinematic realistic lighting coming from the spacecraft windows and control
+panels, highly detailed photorealistic editorial photography, realistic skin tones, natural
+body proportions, dramatic but believable space environment, avoid cartoon, illustration,
+artificial heroic poses, launch pad, rocket exterior, or studio portrait appearance
+```
+
+### Disney — `parque-magico`
 
 Castillo y fuegos artificiales. Strength **0.6**.
 
 ```
-Use the provided photograph as the base image. It shows a family group of several people of
-different ages. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: magical fairytale
-theme park at night, tall fantasy castle with turrets glowing in the background, fireworks
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a family group of several people of different ages. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: Disney animation style, standing in front of
+the Disneyland castle at night, tall fairytale castle with glowing turrets, fireworks
 bursting in the purple sky, floating sparkles, pastel lavender and pink palette, wide eyed
 wonder, dreamy storybook illustration, joyful and innocent
 ```
 
-### Muneco 3D — `muneco-3d`
+### Pixar — `muneco-3d`
 
 Como de pelicula animada. Strength **0.58**.
 
 ```
-Use the provided photograph as the base image. It shows a family group of several people of
-different ages. Redraw the same real people from that photo in the style described below.
-Keep their identity, face shape, hair, skin tone, glasses and clothing recognizable, and
-keep the same pose, the same number of people and the same framing. Do not add or remove
-people, do not invent different faces, and do not add any text. Style: cute 3d animated
-movie character style, stylized big head proportions, soft rounded shapes, subsurface skin
-shading, glossy expressive eyes, warm cinematic lighting, modern animation studio render,
-colorful simple background, wholesome and funny
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows a family group of several people of different ages. Redraw the same real people from
+that photograph in the style described below, keeping their identity, face shape, hair, skin
+tone, glasses and clothing clearly recognizable, and keeping the same pose, the same number
+of people and the same framing. Do not add or remove people, do not replace anyone with a
+different face, and do not add any text. Style: Pixar 3D animated movie character style,
+stylized big head proportions, soft rounded shapes, subsurface skin shading, glossy
+expressive eyes, warm cinematic lighting, high quality animation studio render, colorful
+simple background, wholesome and funny
 ```
 
 ---
@@ -401,87 +471,108 @@ Cuenta regresiva: **12 s**. La IA recibe: *"one or more children"*.
 | Estilo | id | Strength |
 |---|---|---|
 | Cabezon | `cabezon` | 0.6 |
-| Montana Rusa | `montana-rusa` | 0.6 |
-| En la Feria | `feria-loja` | 0.6 |
-| Parque Magico | `parque-magico` | 0.6 |
-| Muneco 3D | `muneco-3d` | 0.58 |
+| Montaña Rusa | `montana-rusa` | 0.6 |
+| Feria de Loja | `feria-loja` | 0.6 |
+| Disney | `parque-magico` | 0.6 |
+| Pixar | `muneco-3d` | 0.58 |
 | Super Heroes | `super-heroes` | 0.62 |
-| Aventura Dino | `dino-aventura` | 0.62 |
+| Dinosaurios | `dino-aventura` | 0.62 |
 
 ### Cabezon — `cabezon`
 
 Cabeza gigante, cuerpo chiquito. Strength **0.6**.
 
 ```
-Use the provided photograph as the base image. It shows one or more children. Redraw the
-same real children from that photo in the style described below. Keep their identity, face
-shape, hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same
-number of people and the same framing. Do not add or remove people, do not invent different
-faces, and do not add any text. Style: funny caricature, oversized head on a small cartoon
-body, exaggerated friendly features, big expressive eyes and huge smile, smooth cel shading,
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one or more children. Redraw the same real children from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: funny caricature, oversized head on a small cartoon body,
+exaggerated friendly features, big expressive eyes and huge smile, smooth cel shading,
 bright saturated colors, modern cartoon illustration, theme park caricature artist style,
 playful and flattering, family friendly
 ```
 
-### Montana Rusa — `montana-rusa`
+### Montaña Rusa — `montana-rusa`
 
 La foto de la caida. Strength **0.6**.
 
 ```
-Use the provided photograph as the base image. It shows one or more children. Redraw the
-same real children from that photo in the style described below. Keep their identity, face
-shape, hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same
-number of people and the same framing. Do not add or remove people, do not invent different
-faces, and do not add any text. Style: hilarious amusement park roller coaster drop photo,
-wind blowing hair straight back, exaggerated screaming and laughing faces, motion blur
-streaks, bright carnival colors, blue sky, colorful roller coaster track, cartoon comedy
-energy, family friendly fun
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one or more children. Redraw the same real children from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: hilarious amusement park roller coaster drop photo, wind blowing
+hair straight back, exaggerated screaming and laughing faces, motion blur streaks, bright
+carnival colors, blue sky, colorful roller coaster track, cartoon comedy energy, family
+friendly fun
 ```
 
-### En la Feria — `feria-loja`
+### Feria de Loja — `feria-loja`
 
-La Feria de Loja de fondo. Strength **0.6**.
+La feria de fondo. Strength **0.6**.
 
 ```
-Use the provided photograph as the base image. It shows one or more children. Redraw the
-same real children from that photo in the style described below. Keep their identity, face
-shape, hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same
-number of people and the same framing. Do not add or remove people, do not invent different
-faces, and do not add any text. Style: lively andean fair illustration, colorful market
-stalls with fabric awnings, strings of triangular bunting flags and warm string lights,
-carousel and ferris wheel in the distance, mountains of southern Ecuador at sunset, straw
-hats and embroidered textiles, festive folk art poster style with flat saturated colors and
-ink outlines
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one or more children. Redraw the same real children from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: Create a realistic candid photograph of the family from the
+provided reference image visiting the Feria de Loja in Loja, Ecuador. Preserve the exact
+identity, facial features, body proportions, skin tones, and overall appearance of every
+person from the reference image. The scene should look like a genuine photograph taken
+spontaneously during their visit to the real Feria de Loja, not a staged promotional image.
+Show the family naturally walking through the fairgrounds, talking, laughing, looking
+around, or casually enjoying the event instead of standing in a perfectly posed group. Use
+an authentic fair environment with realistic crowds, exhibition areas, colorful stalls,
+event lights, decorations, and recognizable details of a large Ecuadorian fair. Capture the
+atmosphere naturally, as if a professional photographer happened to take the photo while the
+family was visiting the Feria de Loja. Use realistic late afternoon or early evening
+lighting, natural shadows, authentic skin tones, documentary-style photography, subtle
+cinematic quality, and realistic depth of field. Avoid illustration, cartoon, animation,
+folk-art style, artificial posing, exaggerated colors, overly perfect backgrounds, or
+generic amusement park scenery. The final image must look like an authentic real-life
+photograph of this specific family spending time at the Feria de Loja.
 ```
 
-### Parque Magico — `parque-magico`
+### Disney — `parque-magico`
 
 Castillo y fuegos artificiales. Strength **0.6**.
 
 ```
-Use the provided photograph as the base image. It shows one or more children. Redraw the
-same real children from that photo in the style described below. Keep their identity, face
-shape, hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same
-number of people and the same framing. Do not add or remove people, do not invent different
-faces, and do not add any text. Style: magical fairytale theme park at night, tall fantasy
-castle with turrets glowing in the background, fireworks bursting in the purple sky,
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one or more children. Redraw the same real children from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: Disney animation style, standing in front of the Disneyland castle
+at night, tall fairytale castle with glowing turrets, fireworks bursting in the purple sky,
 floating sparkles, pastel lavender and pink palette, wide eyed wonder, dreamy storybook
 illustration, joyful and innocent
 ```
 
-### Muneco 3D — `muneco-3d`
+### Pixar — `muneco-3d`
 
 Como de pelicula animada. Strength **0.58**.
 
 ```
-Use the provided photograph as the base image. It shows one or more children. Redraw the
-same real children from that photo in the style described below. Keep their identity, face
-shape, hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same
-number of people and the same framing. Do not add or remove people, do not invent different
-faces, and do not add any text. Style: cute 3d animated movie character style, stylized big
-head proportions, soft rounded shapes, subsurface skin shading, glossy expressive eyes, warm
-cinematic lighting, modern animation studio render, colorful simple background, wholesome
-and funny
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one or more children. Redraw the same real children from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: Pixar 3D animated movie character style, stylized big head
+proportions, soft rounded shapes, subsurface skin shading, glossy expressive eyes, warm
+cinematic lighting, high quality animation studio render, colorful simple background,
+wholesome and funny
 ```
 
 ### Super Heroes — `super-heroes`
@@ -489,27 +580,38 @@ and funny
 Capa y ciudad al fondo. Strength **0.62**.
 
 ```
-Use the provided photograph as the base image. It shows one or more children. Redraw the
-same real children from that photo in the style described below. Keep their identity, face
-shape, hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same
-number of people and the same framing. Do not add or remove people, do not invent different
-faces, and do not add any text. Style: kid superhero illustration, colorful cape flowing in
-the wind, confident hands on hips hero pose, city skyline at golden hour below, comic book
-color palette with bold outlines and dynamic action lines, empowering and cheerful, no logos
-or emblems
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one or more children. Redraw the same real children from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: photorealistic cinematic portrait of the child from the provided
+reference photo as a young superhero, preserve the child’s exact facial features, identity,
+skin tone, hairstyle, body proportions, and overall appearance from the reference image,
+wearing a realistic superhero-inspired outfit with a colorful cape gently flowing in the
+wind, no logos or recognizable emblems, standing confidently in a natural heroic pose, hands
+on hips, overlooking a realistic city skyline during golden hour, warm sunset light, natural
+shadows, realistic fabric textures, cinematic depth of field, subtle wind movement,
+professional movie-style photography, highly detailed, realistic skin texture and natural
+facial expression, empowering and cheerful atmosphere, believable real-world environment,
+avoid cartoon, comic book illustration, bold outlines, exaggerated action lines, animated
+appearance, or unrealistic proportions
 ```
 
-### Aventura Dino — `dino-aventura`
+### Dinosaurios — `dino-aventura`
 
-Con dinosaurios amigables. Strength **0.62**.
+Aventura en la jungla. Strength **0.62**.
 
 ```
-Use the provided photograph as the base image. It shows one or more children. Redraw the
-same real children from that photo in the style described below. Keep their identity, face
-shape, hair, skin tone, glasses and clothing recognizable, and keep the same pose, the same
-number of people and the same framing. Do not add or remove people, do not invent different
-faces, and do not add any text. Style: friendly cartoon dinosaur jungle adventure, big goofy
-smiling dinosaurs peeking from lush green ferns, volcano and waterfall in the distance, warm
+The attached image is a live photograph that was just taken by this photo booth kiosk
+camera. Use that photograph as the base image and as the only reference for who appears. It
+shows one or more children. Redraw the same real children from that photograph in the style
+described below, keeping their identity, face shape, hair, skin tone, glasses and clothing
+clearly recognizable, and keeping the same pose, the same number of people and the same
+framing. Do not add or remove people, do not replace anyone with a different face, and do
+not add any text. Style: friendly cartoon dinosaur jungle adventure, big goofy smiling
+dinosaurs peeking from lush green ferns, volcano and waterfall in the distance, warm
 sunlight through leaves, playful childrens book illustration, rounded shapes and bright
 colors, adventurous but never scary
 ```

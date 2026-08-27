@@ -1072,7 +1072,12 @@ body {
     font-size: clamp(0.75rem, 1.7vmin, 1.1rem);
   }
 
-  .screen--form.is-typing .key--hint { font-size: clamp(0.6rem, 1.2vmin, 0.9rem); }
+  /* Las de dominio se aprietan menos: son las mas utiles del teclado de
+     correo y por debajo de 40 px ya no se aciertan con el dedo. */
+  .screen--form.is-typing .key--hint {
+    font-size: clamp(0.6rem, 1.2vmin, 0.9rem);
+    min-height: 40px;
+  }
 }
 
 /* ============================================================

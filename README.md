@@ -420,15 +420,17 @@ la falla favorita de los modelos en fotos de grupo.
 
 | Grupo | Estilos |
 |---|---|
-| **Solo** | Mundial 2026, Guerrero Anime, Astronauta, Cabezon |
-| **En pareja** | San Valentin, En Paris, Montana Rusa, Escena de Cine, Rubber Hose, En la Feria |
-| **En familia** | Rubber Hose, Caricatura Amarilla, En la Feria, Mision Espacial, Parque Magico, Muneco 3D |
-| **Ninos** | Cabezon, Montana Rusa, En la Feria, Parque Magico, Muneco 3D, Super Heroes, Aventura Dino |
+| **Solo** | Mundial 2026, Dragon Ball, Astronauta, Cabezon |
+| **En pareja** | San Valentin, Paris, Montana Rusa, Cine, Rubber Hose, Feria de Loja |
+| **En familia** | Rubber Hose, Los Simpson, Feria de Loja, NASA, Disney, Pixar |
+| **Ninos** | Cabezon, Montana Rusa, Feria de Loja, Disney, Pixar, Super Heroes, Dinosaurios |
 
-> **Marcas registradas:** ningun prompt nombra Dragon Ball, los Simpson, Disney ni Mickey
-> Mouse. Estan escritos como descripciones de genero, por dos razones: es un evento publico
-> con auspiciantes, y los modelos rechazan o degradan los prompts con personajes
-> protegidos. El aire es el mismo y el resultado sale mejor.
+Los 16 tienen su **imagen de ejemplo** en `public/styles/<id>.jpg`.
+
+> **Marcas registradas:** cuatro estilos (Dragon Ball, Los Simpson, Disney, Pixar) nombran
+> la franquicia en el prompt. Es una decision del cliente, tomada porque sin nombrarlas el
+> modelo no acierta el estilo. Queda anotado porque es un evento publico con auspiciantes:
+> si algun dia hay que quitarlas, son esas cuatro y se cambia su `ai.style`.
 
 ---
 
@@ -589,7 +591,37 @@ avanzando. Una feria con fotos menos bonitas es mejor que una feria detenida.
 
 ---
 
-## 18. Que falta para tener el frontend completo
+## 18. Responsive: como se comprueba
+
+En un totem **no hay scroll ni forma de mover la vista**. Un boton que se sale de la
+pantalla es un boton que no existe, y la persona se queda atascada. Por eso el responsive
+no se mira "a ojo": hay un audit que recorre todas las pantallas en seis resoluciones y
+falla si algo queda fuera.
+
+Se comprueban cuatro cosas por pantalla:
+
+- que el documento no desborde ni a lo ancho ni a lo alto,
+- que ningun boton, tarjeta, campo o foto quede fuera del area visible,
+- que las teclas y botones tengan un tamano que se acierte con el dedo,
+- que la ultima fila del teclado quede siempre por encima de la banda de auspiciantes.
+
+Resoluciones cubiertas: **1080x1920** y **1440x2560** (totem vertical), **1920x1080**,
+**1366x768**, **1280x800** y **768x1024**.
+
+Tamanos reales en el totem vertical (1080x1920): teclas de **56 px**, campos de 59 px,
+botones de 76 px. En QHD suben a 72 y 85 px.
+
+> En portatiles de menos de 880 px de alto el teclado se aprieta y las teclas bajan a
+> 36 px. Es deliberado: ahi hay raton, y la alternativa era que la fila de "Listo" quedara
+> fuera de la pantalla. En el totem, que es vertical, nunca se aplica ese modo.
+
+Las pantallas que mas cuesta encajar son dos: el **selector de estilos de ninos** (7
+tarjetas) y el **formulario con el teclado de correo abierto** (fila de dominios + fila de
+numeros + 3 filas de letras). Si vas a tocar CSS, prueba esas dos primero.
+
+---
+
+## 19. Que falta para tener el frontend completo
 
 ### Hecho
 
@@ -597,15 +629,12 @@ avanzando. Una feria con fotos menos bonitas es mejor que una feria detenida.
 - [x] Consentimiento de datos
 - [x] Sonido de cuenta regresiva, obturador y confirmacion
 - [x] Cola de reintento si se cae la red
-- [x] Layout verificado en 1080x1920 (vertical), 1920x1080 y 1280x800
+- [x] Imagenes de ejemplo de los 16 estilos
+- [x] Layout auditado en 6 resoluciones (ver abajo)
 - [x] Imagenes de referencia de los 4 estilos en el selector
 - [x] Documento de integracion para el backend ([INTEGRACION.md](INTEGRACION.md))
 
 ### Falta
-
-- [ ] **Imagenes de ejemplo de los 12 estilos nuevos.** Solo 4 de 16 tienen referencia; el
-      resto muestra la miniatura del filtro local, que no se parece a lo que dara la IA.
-      Se generan con su propio prompt y se guardan como `public/styles/<id>.jpg`.
 
 - [ ] **Probarlo en el monitor fisico del totem.** El layout esta verificado a la
       resolucion real, pero no sobre el vidrio: falta comprobar tamano real de las teclas
