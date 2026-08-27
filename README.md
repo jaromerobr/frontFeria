@@ -382,10 +382,11 @@ Lo que hay ahora es todo **SVG generado, sin fotos reales**:
 | `public/styles/cabezon.jpg` | **falta** | referencia del estilo cabezon |
 | `public/styles/muneco-3d.jpg` | **falta** | referencia del estilo muneco 3D |
 | `public/demo-photo.svg` | foto de prueba del modo demo | **una foto real de una cara** |
-| `public/logo.svg` | **no existe todavia** | logo de NODO (se dibuja solo si existe) |
+| `public/logo.webp` | logo oficial de NODO | ya esta |
 
-Si pones un `public/logo.svg`, aparece automaticamente en la esquina de la foto. Si no
-existe, no pasa nada: el codigo lo ignora.
+El logo de NODO (`public/logo.webp`) aparece en tres sitios a la vez: el boton de inicio,
+la esquina de cada foto y la banda de auspiciantes. Para cambiarlo, reemplazar el archivo
+con el mismo nombre. Si no existiera, el codigo lo ignora y no se rompe nada.
 
 Recomendacion para el material grafico:
 
@@ -488,9 +489,8 @@ lleguen los logos definitivos no se descuadra nada.
 
 - La velocidad se cambia con `SPONSOR_SCROLL_SECONDS` en el mismo archivo.
 - La lista se pinta dos veces y la animacion recorre la mitad: por eso el bucle no salta.
-- El logo `public/logo.svg` (NODO) es **provisional**, dibujado a mano en SVG. Reemplazarlo
-  por el oficial **con el mismo nombre de archivo** y aparece solo en la banda de
-  auspiciantes y en la esquina de cada foto.
+- El logo de NODO es `public/logo.webp`. Reemplazarlo con el mismo nombre de archivo y
+  cambia en los tres sitios donde aparece.
 
 ---
 
@@ -591,7 +591,28 @@ avanzando. Una feria con fotos menos bonitas es mejor que una feria detenida.
 
 ---
 
-## 18. Responsive: como se comprueba
+## 18. Salidas y puntero
+
+**Boton de inicio.** Arriba a la izquierda, con el logo de NODO, en todas las pantallas
+menos tres: la de inicio (ya es el inicio), la de envio (hay datos viajando y cortar ahi
+deja la foto a medio mandar) y la de exito (vuelve sola en 5 segundos).
+
+En un totem la gente se pierde: entra a un estilo que no queria, se arrepiente, o
+simplemente no sabe como salir. Sin una salida visible empiezan a tocar todo hasta que
+alguien del estand va a rescatarlos. Va arriba a la izquierda, **lejos de los botones de
+accion**, para que nadie lo toque por error justo cuando iba a aceptar su foto.
+
+Reinicia la sesion: borra la foto y los datos de quien estaba antes. Eso no es un efecto
+secundario, es parte del punto.
+
+**El puntero del raton** esta oculto en todo el fondo y **solo aparece encima de lo que se
+puede tocar** (botones, campos, casillas). En un totem tactil un puntero flotando se ve
+como un error, pero si se conecta un raton para configurar o probar hace falta ver donde
+se esta apuntando.
+
+---
+
+## 19. Responsive: como se comprueba
 
 En un totem **no hay scroll ni forma de mover la vista**. Un boton que se sale de la
 pantalla es un boton que no existe, y la persona se queda atascada. Por eso el responsive
@@ -621,7 +642,7 @@ numeros + 3 filas de letras). Si vas a tocar CSS, prueba esas dos primero.
 
 ---
 
-## 19. Que falta para tener el frontend completo
+## 20. Que falta para tener el frontend completo
 
 ### Hecho
 
@@ -645,7 +666,7 @@ numeros + 3 filas de letras). Si vas a tocar CSS, prueba esas dos primero.
       conteo, modo de camara y URL del backend sin recompilar.
 - [ ] Reemplazar `public/demo-photo.svg` por **una foto real de una cara**: hoy las
       miniaturas de los estilos sin referencia se generan sobre un dibujo morado.
-- [ ] Logos reales de auspiciantes y logo oficial de NODO.
+- [ ] Logos reales de los auspiciantes (el de NODO ya esta).
 - [ ] Autoarranque y watchdog en el Jetson: que el totem se levante solo si se reinicia.
 
 ### Ojo con esto

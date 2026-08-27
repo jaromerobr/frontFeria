@@ -13,7 +13,7 @@
  *  celular, foto) en el equipo del totem. Por eso:
  *    - se borra cada envio apenas se logra mandar
  *    - hay un maximo de elementos y una caducidad
- *    - clearQueue() deja todo limpio al terminar el evento
+ *    - cuando se vacia, se borra hasta la clave del almacenamiento
  * ============================================================
  */
 
@@ -86,10 +86,6 @@ export function clearQueue() {
   }
 }
 
-export function queueSize() {
-  return readQueue().length;
-}
-
 /**
  * Reintenta todos los pendientes, uno por uno.
  *
@@ -124,6 +120,11 @@ export async function flushQueue(send, resolveStyle, resolveGroup) {
       break;
     }
   }
+
+  // Si no quedo nada, se borra la clave entera en vez de dejar un array
+  // vacio: el totem no tiene por que guardar ni el rastro de que ahi
+  // hubo datos de alguien.
+  if (sent > 0 && readQueue().length === 0) clearQueue();
 
   return sent;
 }

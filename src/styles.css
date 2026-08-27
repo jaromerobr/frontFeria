@@ -41,10 +41,24 @@ body {
   font-family: 'Baloo 2', 'Segoe UI', system-ui, sans-serif;
   font-weight: 600;
   overflow: hidden;
-  cursor: none;                 /* totem tactil: sin puntero */
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+
+  /* El totem es tactil: un puntero flotando en la pantalla se ve como un
+     error. Pero si se conecta un raton para configurar o probar, hace
+     falta verlo para saber donde se esta apuntando. Solucion: invisible
+     en todas partes, visible SOLO encima de lo que se puede tocar. */
+  cursor: none;
 }
+
+button,
+label,
+.field__input,
+[role='textbox'] {
+  cursor: pointer;
+}
+
+button:disabled { cursor: not-allowed; }
 
 /* Fondo: rayos de cartel + trama de puntos tipo comic impreso. */
 .app {
@@ -1136,4 +1150,48 @@ body {
 .ghost-button--inline {
   position: static;
   margin-top: 1vmin;
+}
+
+/* ============================================================
+   BOTON DE INICIO
+   Arriba a la izquierda, lejos de los botones de accion para que
+   nadie lo toque justo cuando iba a aceptar su foto.
+   ============================================================ */
+
+.home-button {
+  position: absolute;
+  top: calc(clamp(38px, 7vmin, 90px) + 1.2vmin);
+  left: 1.6vmin;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1.1rem 0.45rem 0.8rem;
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: Bungee, Impact, sans-serif;
+  font-size: clamp(0.65rem, 1.4vmin, 1.1rem);
+  color: var(--ink);
+  transform: rotate(-1.5deg);
+  transition: transform 90ms ease, box-shadow 90ms ease;
+}
+
+.home-button:active {
+  transform: translate(3px, 3px) rotate(-1deg);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.home-button__logo {
+  height: clamp(20px, 3vmin, 40px);
+  width: auto;
+  display: block;
+}
+
+.home-button__text { letter-spacing: 0.08em; }
+
+/* En vertical hay sitio de sobra: se agranda para el dedo. */
+@media (orientation: portrait) {
+  .home-button { padding: 0.7rem 1.5rem 0.7rem 1rem; gap: 0.8rem; }
 }

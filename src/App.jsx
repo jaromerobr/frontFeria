@@ -13,6 +13,7 @@ import SuccessScreen from './screens/SuccessScreen.jsx';
 import ErrorScreen from './screens/ErrorScreen.jsx';
 import IdleWarning from './components/IdleWarning.jsx';
 import Bunting from './components/Bunting.jsx';
+import HomeButton from './components/HomeButton.jsx';
 import SponsorBar from './components/SponsorBar.jsx';
 
 import { capturePhoto, stopCamera } from './services/camera.js';
@@ -66,6 +67,15 @@ async function withMinimumWait(promise) {
   if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
   return result;
 }
+
+/**
+ * Pantallas SIN boton de inicio.
+ *
+ *   WELCOME  ya es el inicio
+ *   SENDING  hay datos viajando: cortar ahi deja la foto a medio enviar
+ *   SUCCESS  vuelve sola en 5 segundos
+ */
+const NO_HOME = [SCREENS.WELCOME, SCREENS.SENDING, SCREENS.SUCCESS];
 
 /** Pantallas donde el usuario puede quedarse quieto y abandonar el totem. */
 const IDLE_WATCHED = [
@@ -237,6 +247,7 @@ export default function App() {
   return (
     <div className="app">
       <Bunting />
+      {!NO_HOME.includes(screen) && <HomeButton onClick={resetSession} />}
       <IdleWarning secondsLeft={idleSecondsLeft} />
       <div className="app__content">{renderScreen()}</div>
       <SponsorBar />

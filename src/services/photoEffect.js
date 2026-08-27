@@ -403,7 +403,7 @@ async function drawPaniniFrame(ctx, w, h) {
 
 /** Logo opcional en la esquina. Si no existe el archivo, no pasa nada. */
 async function drawCornerLogo(ctx, w, h, x, y, width) {
-  const logo = await loadImage('/logo.svg').catch(() => null);
+  const logo = await loadImage('/logo.webp').catch(() => null);
   if (!logo) return;
   const lh = width * (logo.height / logo.width);
   ctx.drawImage(logo, w - x - width, y, width, lh);

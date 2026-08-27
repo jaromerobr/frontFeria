@@ -121,7 +121,7 @@ const LOOKS = {
   }),
 };
 
-const STYLE_DEFS = [
+export const PHOTO_STYLES = [
   /* ============================ SOLO ============================ */
   {
     id: 'mundial-2026',
@@ -440,18 +440,15 @@ const STYLE_DEFS = [
   },
 ];
 
-/**
- * Los estilos, con su prompt compuesto al vuelo.
- *
+/*
  * El prompt final = instruccion (que depende del grupo) + descripcion del
- * estilo. Se arma en getPrompt() y no se guarda: el mismo estilo genera un
- * prompt distinto para una pareja que para una familia.
+ * estilo. Se arma en getPrompt() y no se guarda en el objeto: el mismo
+ * estilo genera un prompt distinto para una pareja que para una familia.
  */
-export const PHOTO_STYLES = STYLE_DEFS;
 
 /** Los estilos que tienen sentido para ese grupo de personas. */
 export function stylesForGroup(groupId) {
-  return STYLE_DEFS.filter((s) => s.groups.includes(groupId));
+  return PHOTO_STYLES.filter((s) => s.groups.includes(groupId));
 }
 
 /**
@@ -478,8 +475,8 @@ export function styleFields(style, group) {
 }
 
 export function getStyle(id) {
-  return STYLE_DEFS.find((s) => s.id === id) ?? STYLE_DEFS[0];
+  return PHOTO_STYLES.find((s) => s.id === id) ?? PHOTO_STYLES[0];
 }
 
 /** El que se usa si algo se pierde por el camino (timeout, recarga...). */
-export const DEFAULT_STYLE = STYLE_DEFS[0];
+export const DEFAULT_STYLE = PHOTO_STYLES[0];

@@ -16,7 +16,7 @@
  */
 
 export const SPONSORS = [
-  { name: 'NODO', logo: '/logo.svg' },
+  { name: 'NODO', logo: '/logo.webp' },
   { name: 'Auspiciante 2', logo: '/sponsors/auspiciante-2.svg' },
   { name: 'Auspiciante 3', logo: '/sponsors/auspiciante-3.svg' },
   { name: 'Auspiciante 4', logo: '/sponsors/auspiciante-4.svg' },

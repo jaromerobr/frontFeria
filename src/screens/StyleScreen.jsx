@@ -37,7 +37,13 @@ export default function StyleScreen({ group, sampleSrc, onSelect, onBack, curren
 
   // Las miniaturas se calculan en el momento con el mismo filtro real,
   // no son imagenes guardadas: si cambias un estilo, aqui se ve solo.
+  //
+  // Solo se calculan cuando hacen falta, o sea cuando la persona ya se
+  // tomo la foto. Antes de eso las tarjetas muestran la imagen de
+  // ejemplo, y calcular 16 miniaturas para no ensenarlas era gastar
+  // medio segundo de CPU del Jetson en nada.
   useEffect(() => {
+    if (!hasOwnPhoto) return undefined;
     let cancelled = false;
 
     (async () => {
@@ -58,7 +64,7 @@ export default function StyleScreen({ group, sampleSrc, onSelect, onBack, curren
     // Se recalcula si cambia la foto de muestra o el grupo (que cambia
     // tanto la lista de estilos como la guia de encuadre).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sample, group.id]);
+  }, [sample, group.id, hasOwnPhoto]);
 
   return (
     <Screen className="screen--styles">
