@@ -1283,6 +1283,11 @@ button:disabled { cursor: not-allowed; }
   bottom: 2vmin;
   width: 0;
   flex-direction: column;
+  /* space-evenly, no space-between: con space-between la primera y la
+     ultima bombilla caen justo en las esquinas, encima de las que ya
+     pone la tira horizontal, y se ven dos pisadas. Asi las verticales
+     empiezan y terminan a una distancia igual del borde. */
+  justify-content: space-evenly;
 }
 
 .circus__marquee--left { left: 2vmin; }

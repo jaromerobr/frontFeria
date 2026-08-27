@@ -601,7 +601,12 @@ y la gente pasa de largo. [CircusStage.jsx](src/components/CircusStage.jsx) exis
 se note desde diez metros:
 
 - **rayos de carpa** girando despacio (90 s por vuelta),
-- **50 bombillas** de marquesina enmarcando la pantalla, encendiendose en cadena,
+- **50 bombillas** de marquesina enmarcando la pantalla, encendiendose en cadena. Las
+  tiras verticales usan `space-evenly` y no `space-between`: con `space-between` la primera
+  y la ultima caian justo en las esquinas, encima de las que ya pone la tira horizontal, y
+  se veian dos bombillas pisadas. Comprobado midiendo todas contra todas: **0 pares
+  superpuestos** en las cinco resoluciones, con una separacion minima de 57 px frente a
+  bombillas de 10-16 px,
 - **banderines** colgados de una cuerda, ondeando como una ola: cada uno con su desfase y su
   duracion, moviendose en tres ejes a la vez (giro, estiron e inclinacion). Con un solo eje
   se ve como un parpadeo; con los tres parece viento,
@@ -659,10 +664,15 @@ lectores fallan con poco contraste, y un QR que no se lee es un QR que no existe
 
 | Resolucion | QR de la bienvenida | Boton Comenzar | Titulo |
 |---|---|---|---|
-| 1080x1920 (totem) | 164 px | 380x122 | 828 px de ancho |
-| 1440x2560 (totem QHD) | 213 px | 456x153 | 1033 px |
-| 1920x1080 | 120 px | 311x103 | 654 px |
-| 1366x768 y menores | 97 px | 221x73 | 465 px |
+| 768x1366 (totem chico) | 122 px | 271x88 | 589 px de ancho |
+| 900x1600 (totem mediano) | 137 px | 318x103 | 690 px |
+| 1080x1920 (totem) | 164 px | 380x122 | 828 px |
+| 1200x1920 (totem ancho) | 182 px | 423x138 | 920 px |
+| 1440x2560 (totem QHD) | 213 px | 457x154 | 1033 px |
+| 1920x1080 (monitor) | 120 px | 310x103 | 654 px |
+
+El QR nunca baja de **122 px en un totem**, que se escanea de pie a medio metro sin
+agacharse. Es la medida que manda en la bienvenida: si el QR no se lee, la tira sobra.
 
 En vertical **todo se escala con el ancho (`vw`), no con `vmin`**. Con `vmin` una pantalla
 de 1080x1920 usa el lado corto y el contenido queda diminuto en el centro con medio metro
@@ -744,9 +754,24 @@ Se comprueban cuatro cosas por pantalla:
 - que las teclas y botones tengan un tamano que se acierte con el dedo,
 - que la ultima fila del teclado quede siempre por encima de la banda de auspiciantes.
 
-Resoluciones cubiertas: **1080x1920** y **1440x2560** (totem vertical), **1920x1080**,
-**1366x768**, **1280x800** y **768x1024**. Pantallas recorridas: bienvenida, redes, grupos,
-estilos, cuenta regresiva, vista previa, formulario y formulario con el teclado abierto.
+Resoluciones cubiertas, pensadas para un totem mediano y sus vecinas:
+
+| Resolucion | Que es |
+|---|---|
+| 768x1366 | totem chico |
+| 900x1600 | totem mediano |
+| 1080x1920 | totem estandar (el caso real) |
+| 1200x1920 | totem ancho |
+| 1440x2560 | totem QHD |
+| 1920x1080 | monitor horizontal |
+| 1366x768 | portatil de pruebas |
+
+Pantallas recorridas en cada una: bienvenida, redes, grupos, estilos (el grupo de ninos,
+que es el de mas tarjetas), cuenta regresiva, vista previa, formulario y formulario con el
+teclado abierto.
+
+Las seis resoluciones de totem pasan limpias. La unica marca es en el portatil de 768 px de
+alto, donde las teclas bajan a 36 px, que es deliberado y esta explicado abajo.
 
 Tamanos reales en el totem vertical (1080x1920): teclas de **56 px**, campos de 59 px,
 botones de 76 px. En QHD suben a 72 y 85 px.
