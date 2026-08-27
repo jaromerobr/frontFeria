@@ -20,8 +20,10 @@
 
 export const CREATORS = [
   { name: 'NODO', logo: '/logo.webp' },
-  { name: 'QUOHUB', logo: '/creators/quohub.svg' },
-  { name: 'EMPRESA 3', logo: '/creators/empresa-3.svg' },
+  // El logo de REDY todavia no llega: mientras tanto se ve el nombre
+  // en texto grande. Cuando llegue, se deja el archivo en
+  // public/creators/redy.svg y aparece solo.
+  { name: 'REDY', logo: '/creators/redy.svg' },
 ];
 
 /** Segundos que se queda cada una en pantalla. */

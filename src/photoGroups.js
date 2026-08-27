@@ -13,9 +13,10 @@
  *      gente va a entrar, y en el grupo de ninos baja, porque los
  *      ninos son mas bajos y si no salen cortados por abajo.
  *
- *   3. CUANTO DURA LA CUENTA REGRESIVA. Una familia de cinco tarda
- *      mas en acomodarse que una persona sola. 10 segundos que le
- *      sobran a uno son pocos para cinco.
+ *   3. CUANTO DURA LA CUENTA REGRESIVA. Una familia tarda un poco mas
+ *      en acomodarse que una persona sola, pero ninguna pasa de 6
+ *      segundos: en una feria con fila, esperar mas se hace eterno y
+ *      la gente se distrae justo antes del disparo.
  *
  *  Ademas se le dice a la IA cuanta gente hay, para que no invente
  *  ni borre personas, que es su falla favorita en fotos de grupo.
@@ -28,7 +29,7 @@ export const PHOTO_GROUPS = [
     name: 'Solo',
     tagline: 'Una persona',
     icon: '🙋',
-    countdown: 10,
+    countdown: 5,
     /** Ovalo de encuadre, en fracciones del cuadro (ver FaceGuide). */
     guide: { cx: 0.5, cy: 0.42, w: 0.3, h: 0.46 },
     /** Lo que se le dice a la IA que hay en la foto. */
@@ -40,7 +41,7 @@ export const PHOTO_GROUPS = [
     name: 'En pareja',
     tagline: 'Dos personas',
     icon: '💞',
-    countdown: 12,
+    countdown: 6,
     guide: { cx: 0.5, cy: 0.44, w: 0.56, h: 0.46 },
     subject: 'a couple of exactly two people standing together',
     people: 'people',
@@ -50,7 +51,7 @@ export const PHOTO_GROUPS = [
     name: 'En familia',
     tagline: 'Tres o mas',
     icon: '👨‍👩‍👧‍👦',
-    countdown: 15,
+    countdown: 6,
     guide: { cx: 0.5, cy: 0.46, w: 0.82, h: 0.5 },
     subject: 'a family group of several people of different ages',
     people: 'people',
@@ -60,7 +61,7 @@ export const PHOTO_GROUPS = [
     name: 'Ninos',
     tagline: 'Para los mas pequenos',
     icon: '🧒',
-    countdown: 12,
+    countdown: 6,
     // Mas abajo y mas ancho: los ninos son bajos y nunca vienen quietos
     // ni de a uno. Si se usa el ovalo de adulto, salen decapitados.
     guide: { cx: 0.5, cy: 0.56, w: 0.6, h: 0.44 },

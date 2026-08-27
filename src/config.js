@@ -12,7 +12,7 @@
 const env = import.meta.env;
 
 /** Segundos de la cuenta regresiva antes de disparar la foto. */
-export const COUNTDOWN_SECONDS = Number(env.VITE_COUNTDOWN_SECONDS ?? 10);
+export const COUNTDOWN_SECONDS = Number(env.VITE_COUNTDOWN_SECONDS ?? 6);
 
 /** Segundos que se muestra la pantalla de exito antes de volver al inicio. */
 export const SUCCESS_SCREEN_SECONDS = Number(env.VITE_SUCCESS_SECONDS ?? 5);

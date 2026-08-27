@@ -1,4 +1,5 @@
 import Screen from '../components/Screen.jsx';
+import BigButton from '../components/BigButton.jsx';
 import { PHOTO_GROUPS } from '../photoGroups.js';
 
 /**
@@ -30,9 +31,11 @@ export default function GroupScreen({ onSelect, onBack }) {
         ))}
       </div>
 
-      <button className="ghost-button ghost-button--inline" type="button" onClick={onBack}>
+      {/* Boton grande y no un enlace: es la unica salida de esta
+          pantalla y con el dedo hay que acertarle de una. */}
+      <BigButton variant="secondary" onClick={onBack}>
         Volver
-      </button>
+      </BigButton>
     </Screen>
   );
 }

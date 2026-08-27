@@ -424,6 +424,9 @@ cosas de verdad:
 Ademas se le dice a la IA cuanta gente hay, y se le prohibe agregar o quitar personas: es
 la falla favorita de los modelos en fotos de grupo.
 
+Cuenta regresiva: **5 s** solo, **6 s** en pareja, familia y ninos. Mas que eso, en una
+feria con fila, se hace eterno y la gente se distrae justo antes del disparo.
+
 | Grupo | Estilos |
 |---|---|
 | **Solo** | Mundial 2026, Dragon Ball, Astronauta, Cabezon |
@@ -691,11 +694,15 @@ la vez y grande ([CreatorsSlider.jsx](src/components/CreatorsSlider.jsx)). Una s
 vez y no todas juntas: en una feria la pantalla se mira dos segundos de reojo, y cinco
 logos pequenos no los lee nadie.
 
-Se agregan en [creators.js](src/creators.js):
+Hoy son dos: **NODO** y **REDY**. Se agregan en [creators.js](src/creators.js):
 
 ```js
-{ name: 'QUOHUB', logo: '/creators/quohub.svg' },
+{ name: 'REDY', logo: '/creators/redy.svg' },
 ```
+
+El logo se mide **por ancho y no por alto**: los logotipos suelen ser letreros anchos y
+bajos (el de NODO es 198x50), y limitandolos por alto salen diminutos al lado de un
+nombre escrito en Bungee.
 
 Mientras el logo no exista, se muestra **el nombre en texto grande**, asi que se puede ver
 como queda antes de tener los archivos. Los logos van en `public/creators/`.

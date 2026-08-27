@@ -470,13 +470,18 @@ button:disabled { cursor: not-allowed; }
 }
 
 .photo-frame__img {
+  width: auto;
+  height: auto;
+  /* Se limita por los dos lados y el marco se ajusta a lo que quede
+     (ver PhotoPreview.jsx). Nada de forzar el ancho del marco: con una
+     foto apaisada dejaba franjas de papel vacias a los costados. */
   max-height: 52vh;
   max-width: 80vw;
-  /* contain y no cover: la imagen viene del modelo y no siempre en la
-     proporcion que pedimos. Con cover se recortaria justo la cara. */
   object-fit: contain;
   display: block;
 }
+
+.photo-frame.is-landscape .photo-frame__img { max-height: 42vh; }
 
 .thumb {
   width: 100%;
@@ -1693,7 +1698,8 @@ button:disabled { cursor: not-allowed; }
 /* En vertical la foto es la protagonista: ocupa lo que pueda sin
    empujar los botones fuera de la pantalla. */
 @media (orientation: portrait) {
-  .photo-frame__img { max-height: 46vh; max-width: 88vw; }
+  .photo-frame__img { max-height: 52vh; max-width: 88vw; }
+  .photo-frame.is-landscape .photo-frame__img { max-height: 40vh; max-width: 88vw; }
   .screen--preview .title { font-size: clamp(2rem, 5.5vw, 3.6rem); }
   .screen--preview .lead--small { font-size: clamp(1rem, 2.2vw, 1.8rem); }
 }
@@ -1773,10 +1779,14 @@ button:disabled { cursor: not-allowed; }
   to   { opacity: 1; transform: none; }
 }
 
+/* Se mide por ANCHO, no por alto: el logo de NODO es un letrero
+   ancho y bajo (198x50), asi que limitandolo por alto salia diminuto
+   al lado de los nombres escritos en Bungee. */
 .creators__logo {
-  max-height: clamp(60px, 11vmin, 175px);
-  max-width: min(80vw, 700px);
-  width: auto;
+  width: clamp(320px, 46vmin, 720px);
+  max-width: 82vw;
+  max-height: 26vh;
+  height: auto;
   object-fit: contain;
 }
 
@@ -1818,7 +1828,7 @@ button:disabled { cursor: not-allowed; }
 
 @media (orientation: portrait) {
   .creators__kicker { font-size: clamp(1rem, 2.2vw, 1.8rem); }
-  .creators__logo { max-height: clamp(90px, 16vw, 260px); }
+  .creators__logo { width: clamp(420px, 70vw, 900px); max-height: 20vh; }
   .creators__name { font-size: clamp(2.8rem, 11vw, 8rem); }
   .creators__slide { min-height: clamp(110px, 18vw, 300px); }
 
