@@ -1844,3 +1844,29 @@ button:disabled { cursor: not-allowed; }
     padding: clamp(1.5rem, 3.8vw, 3rem) clamp(3.5rem, 9vw, 7rem);
   }
 }
+
+/* ============================================================
+   RETOQUES DE TAMANO
+   ============================================================ */
+
+/* El cancelar de la cuenta regresiva: se toca con prisa, mirando la
+   camara y no el boton. Pequeno no sirve. */
+.ghost-button {
+  font-size: calc(var(--fs-body) * 0.95);
+  padding: 0.85rem 2.4rem;
+  min-height: 56px;
+}
+
+@media (orientation: portrait) {
+  .screen--countdown .ghost-button,
+  .stage .ghost-button {
+    font-size: clamp(1.1rem, 2.4vw, 2rem);
+    padding: 1.2rem 3rem;
+    min-height: 78px;
+  }
+
+  /* Los QR de la bienvenida, mas grandes: se escanean de pie y a
+     medio metro, y ahi cada centimetro cuenta. */
+  .social-mini__qr { width: clamp(150px, 19vw, 270px); }
+  .social-strip { padding: clamp(1rem, 2.4vw, 2rem) clamp(1.4rem, 4vw, 3.2rem); }
+}

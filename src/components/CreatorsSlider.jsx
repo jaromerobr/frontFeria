@@ -25,7 +25,6 @@ export default function CreatorsSlider() {
 
   return (
     <div className="creators">
-      <p className="creators__kicker">Creado por</p>
 
       {/* El key fuerza a React a remontar el elemento en cada cambio,
           que es lo que dispara la animacion de entrada. */}
