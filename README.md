@@ -684,6 +684,11 @@ accion**, para que nadie lo toque por error justo cuando iba a aceptar su foto.
 Reinicia la sesion: borra la foto y los datos de quien estaba antes. Eso no es un efecto
 secundario, es parte del punto.
 
+**Los banderines desaparecen en la cuenta regresiva.** Es la unica pantalla donde la
+camara ocupa todo y la persona se esta mirando para acomodarse: los banderines le tapaban
+justo la parte de arriba, que es donde esta su cara. En vertical, ademas, el boton de
+cancelar se va arriba a la derecha, porque abajo esta la banda del contador.
+
 **El puntero del raton** esta oculto en todo el fondo y **solo aparece encima de lo que se
 puede tocar** (botones, campos, casillas). En un totem tactil un puntero flotando se ve
 como un error, pero si se conecta un raton para configurar o probar hace falta ver donde
@@ -691,7 +696,41 @@ se esta apuntando.
 
 ---
 
-## 21. Responsive: como se comprueba
+## 21. Cuanto cuesta cada foto (y como no gastar de mas)
+
+Cada imagen generada con Gemini **se paga**. El totem esta hecho para pedir
+**exactamente las que la persona quiso ver, ni una mas**:
+
+| Momento | Generaciones |
+|---|---|
+| Ver la lista de estilos | **0** |
+| Tomar la foto | **1** (solo el estilo elegido) |
+| "Otro estilo" con uno nuevo | **1** |
+| "Otro estilo" volviendo a uno ya visto | **0** (se reusa) |
+| Repetir la foto | **1** |
+
+Tres cosas lo garantizan:
+
+1. **Nunca se genera "por si acaso".** Al abrir el selector no se pide nada: solo se
+   genera el estilo que la persona toco.
+2. **Las miniaturas del selector son filtro local**, canvas puro. No tocan la IA ni cuando
+   muestran la cara de la persona en los 6 o 7 estilos del grupo.
+3. **Lo ya generado se guarda** mientras dure esa foto (`generatedByStyle` en
+   [App.jsx](src/App.jsx)). Pasa constantemente: la persona mira Rubber Hose, prueba Pixar,
+   no le gusta y vuelve a Rubber Hose. Sin esto son tres llamadas para dos imagenes.
+   La memoria se vacia con cada foto nueva, porque un resultado solo vale para la foto con
+   la que se hizo.
+
+Verificado con un backend simulado que cuenta las llamadas: recorrido de foto + dos
+estilos + volver a los dos anteriores + repetir foto = **3 generaciones**, que son
+exactamente las tres imagenes distintas que se pidieron.
+
+Si algun dia se quiere abaratar mas, la palanca es `styleStrength` y el tamano de la foto
+que se manda, no el flujo.
+
+---
+
+## 22. Responsive: como se comprueba
 
 En un totem **no hay scroll ni forma de mover la vista**. Un boton que se sale de la
 pantalla es un boton que no existe, y la persona se queda atascada. Por eso el responsive
@@ -722,7 +761,7 @@ numeros + 3 filas de letras). Si vas a tocar CSS, prueba esas dos primero.
 
 ---
 
-## 22. Que falta para tener el frontend completo
+## 23. Que falta para tener el frontend completo
 
 ### Hecho
 

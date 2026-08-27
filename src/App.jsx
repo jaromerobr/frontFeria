@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import './styles.css';
 
 import Welcome from './screens/Welcome.jsx';
@@ -71,6 +71,15 @@ async function withMinimumWait(promise) {
 }
 
 /**
+ * Pantallas SIN banderines.
+ *
+ * En la cuenta regresiva la camara ocupa toda la pantalla y la persona
+ * se esta mirando para acomodarse: los banderines le tapan justo la
+ * parte de arriba, que es donde esta su cara.
+ */
+const NO_BUNTING = [SCREENS.COUNTDOWN];
+
+/**
  * Pantallas SIN boton de inicio.
  *
  *   WELCOME  ya es el inicio
@@ -101,6 +110,19 @@ export default function App() {
   /** true si la foto quedo en la cola en vez de enviarse al momento. */
   const [wasQueued, setWasQueued] = useState(false);
 
+  /**
+   * Resultados ya generados de la foto actual, por estilo.
+   *
+   * Cada generacion con IA cuesta dinero, asi que no se pide dos veces
+   * lo mismo. Pasa constantemente: la persona mira Rubber Hose, prueba
+   * Pixar, no le gusta y vuelve a Rubber Hose. Sin esto son tres
+   * llamadas para dos imagenes.
+   *
+   * Se vacia con cada foto nueva: los resultados valen solo para la
+   * foto con la que se hicieron.
+   */
+  const generatedByStyle = useRef(new Map());
+
   useEffect(() => installKioskGuards(), []);
 
   /**
@@ -122,6 +144,7 @@ export default function App() {
   /** Borra TODO rastro de la persona anterior. */
   const resetSession = useCallback(() => {
     stopCamera();
+    generatedByStyle.current.clear();
     setPhoto(null);
     setRawShot(null);
     setUserData(null);
@@ -159,6 +182,9 @@ export default function App() {
    * Elegir estilo hace dos cosas distintas segun el momento:
    *  - antes de la foto  -> arranca la cuenta regresiva
    *  - despues de la foto -> reprocesa la MISMA foto, sin volver a tomarla
+   *
+   * Nunca se genera "por si acaso": solo el estilo que la persona toco.
+   * Las miniaturas del selector son filtro local, no tocan la IA.
    */
   const handleStyleSelect = async (chosen) => {
     setStyle(chosen);
@@ -168,9 +194,21 @@ export default function App() {
       return;
     }
 
+    // Ya se genero antes con esta misma foto: se reusa y no se gasta
+    // otra llamada. Cubre volver al estilo anterior y tocar dos veces
+    // el mismo, que es lo que mas pasa.
+    const cached = generatedByStyle.current.get(chosen.id);
+    if (cached) {
+      setPhoto(cached);
+      setScreen(SCREENS.PREVIEW);
+      return;
+    }
+
     setScreen(SCREENS.PROCESSING);
     try {
-      setPhoto(await withMinimumWait(generatePhoto(rawShot, chosen, group)));
+      const result = await withMinimumWait(generatePhoto(rawShot, chosen, group));
+      generatedByStyle.current.set(chosen.id, result);
+      setPhoto(result);
       setScreen(SCREENS.PREVIEW);
     } catch (err) {
       setErrorMessage(err.message || 'No se pudo aplicar el estilo.');
@@ -183,10 +221,13 @@ export default function App() {
     try {
       const shot = await capturePhoto();
       setRawShot(shot); // se guarda cruda para poder cambiar de estilo despues
+      // Foto nueva: lo generado para la anterior ya no sirve.
+      generatedByStyle.current.clear();
       // Generar con IA tarda entre 5 y 20 segundos: la pantalla de
       // espera le muestra a la persona su propia foto revelandose.
       setScreen(SCREENS.PROCESSING);
       const finished = await withMinimumWait(generatePhoto(shot, style, group));
+      generatedByStyle.current.set(style.id, finished);
       setPhoto(finished);
       setScreen(SCREENS.PREVIEW);
     } catch (err) {
@@ -199,6 +240,7 @@ export default function App() {
   const handleAccept = () => setScreen(SCREENS.FORM);
 
   const handleRetake = () => {
+    generatedByStyle.current.clear();
     setPhoto(null);
     setRawShot(null);
     setScreen(SCREENS.COUNTDOWN);
@@ -249,7 +291,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <Bunting />
+      {!NO_BUNTING.includes(screen) && <Bunting />}
       {!NO_HOME.includes(screen) && <HomeButton onClick={resetSession} />}
       <IdleWarning secondsLeft={idleSecondsLeft} />
       <div className="app__content">{renderScreen()}</div>

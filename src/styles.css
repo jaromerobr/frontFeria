@@ -1574,3 +1574,39 @@ button:disabled { cursor: not-allowed; }
   /* Banderines mas grandes: son lo primero que se ve de lejos. */
   .bunting { height: clamp(60px, 9vw, 140px); }
 }
+
+/* ============================================================
+   CUENTA REGRESIVA EN VERTICAL
+   Sin banderines la camara llega hasta arriba, y la banda de
+   abajo tiene que leerse de un vistazo mientras la gente se
+   acomoda: nadie va a estar leyendo letra chica en ese momento.
+   ============================================================ */
+
+@media (orientation: portrait) {
+  .ticker-panel {
+    height: clamp(170px, 15vh, 320px);
+    padding: 2.5vmin 3vw;
+    gap: 3vw;
+  }
+
+  .ticker-panel__brand { font-size: clamp(1rem, 2.2vw, 1.8rem); }
+  .ticker__label { font-size: clamp(1rem, 2.4vw, 2rem); }
+  .ticker__number { font-size: clamp(4rem, 11vw, 9rem); }
+  .ticker-panel__foot { font-size: clamp(0.75rem, 1.5vw, 1.2rem); }
+  .ticker__bar { height: clamp(14px, 1.8vw, 26px); }
+
+  /* En vertical la banda de abajo esta llena: el boton de cancelar
+     se va arriba a la derecha, sobre la camara, donde no estorba y
+     queda simetrico con el de inicio. */
+  .screen--countdown .ghost-button,
+  .stage .ghost-button {
+    /* Margen de sobra por arriba: la pantalla entra con una animacion
+       que la desplaza unos pixeles, y con 2.5vmin el boton asomaba
+       fuera del borde durante esa fraccion de segundo. */
+    top: 4vmin;
+    bottom: auto;
+    right: 2.5vmin;
+    padding: 0.9rem 2.2rem;
+    font-size: clamp(0.85rem, 1.8vw, 1.4rem);
+  }
+}
