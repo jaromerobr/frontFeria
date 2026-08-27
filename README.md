@@ -19,6 +19,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # genera /dist para produccion
 npm run preview  # sirve /dist tal como quedara en el totem
+npm run qr       # regenera los codigos QR de las redes de NODO
 ```
 
 Al abrirlo funciona ya en **modo demo**: la cuenta regresiva termina y aparece una
@@ -54,6 +55,8 @@ src/
 ├── config.js              <- TODAS las variables ajustables (leer primero)
 ├── photoGroups.js         <- solo / pareja / familia / ninos
 ├── photoStyles.js         <- los 16 estilos y sus prompts
+├── social.js              <- web y redes de NODO (los QR salen de aqui)
+├── sponsors.js            <- logos de la banda inferior
 ├── kiosk.js               <- pantalla completa, bloqueo de F5/menu contextual
 ├── App.jsx                <- maquina de estados + reset de sesion
 ├── styles.css             <- estilos (escalan con clamp a cualquier monitor)
@@ -591,7 +594,60 @@ avanzando. Una feria con fotos menos bonitas es mejor que una feria detenida.
 
 ---
 
-## 18. Salidas y puntero
+## 18. La bienvenida se mueve, y por que
+
+Un totem quieto en una feria es invisible: compite con musica, luces y puestos de comida,
+y la gente pasa de largo. [CircusStage.jsx](src/components/CircusStage.jsx) existe para que
+se note desde diez metros:
+
+- **rayos de carpa** girando despacio (90 s por vuelta),
+- **50 bombillas** de marquesina enmarcando la pantalla, encendiendose en cadena,
+- **globos** que suben con balanceo,
+- **confeti** cayendo y girando,
+- el **titulo** balanceandose como un cartel colgado.
+
+Tres decisiones que conviene no deshacer:
+
+1. **Va solo en la bienvenida.** En las demas pantallas la persona esta haciendo algo y las
+   animaciones estorban.
+2. **Todo se anima con `transform` y `opacity`**, que la GPU resuelve sola. Nada anima
+   colores, sombras ni tamanos de fondo: eso obliga al navegador a repintar y en el Jetson
+   se nota. Medido: **~100 fps con 90 animaciones corriendo a la vez**.
+3. **La capa no recibe toques** (`pointer-events: none`), asi que el confeti nunca se come
+   un toque destinado al boton.
+
+Todo se apaga solo si el sistema pide menos movimiento (`prefers-reduced-motion`).
+
+---
+
+## 19. Conoce NODO: la web y las redes
+
+Pantalla propia, a la que se llega desde la bienvenida ([SocialScreen.jsx](src/screens/SocialScreen.jsx)),
+mas el QR de la web en la pantalla de exito, que es el mejor momento: la persona acaba de
+recibir algo que le gusto y todavia tiene el celular en la mano.
+
+**Son codigos QR, no botones.** En un totem un boton a Facebook abre la red dentro del
+navegador del kiosco y deja a la persona atrapada en una pagina que no es la nuestra; al
+siguiente le toca encontrarse eso abierto. Con el QR se lo lleva en su celular, el totem
+no se mueve de su sitio, y **el contacto queda despues de la feria**, que es lo que de
+verdad le interesa a NODO.
+
+Los QR estan **generados como SVG** en `public/qr/` y viven en el repositorio, porque el
+totem tiene que funcionar sin internet: pedirle la imagen a un servicio externo es
+exactamente lo que falla el dia del evento.
+
+Para cambiar un enlace: editar [social.js](src/social.js) y correr
+
+```bash
+npm run qr
+```
+
+Detalle que importa: el QR va sobre **fondo blanco**, no sobre el papel crema. Algunos
+lectores fallan con poco contraste, y un QR que no se lee es un QR que no existe.
+
+---
+
+## 20. Salidas y puntero
 
 **Boton de inicio.** Arriba a la izquierda, con el logo de NODO, en todas las pantallas
 menos tres: la de inicio (ya es el inicio), la de envio (hay datos viajando y cortar ahi
@@ -612,7 +668,7 @@ se esta apuntando.
 
 ---
 
-## 19. Responsive: como se comprueba
+## 21. Responsive: como se comprueba
 
 En un totem **no hay scroll ni forma de mover la vista**. Un boton que se sale de la
 pantalla es un boton que no existe, y la persona se queda atascada. Por eso el responsive
@@ -627,7 +683,8 @@ Se comprueban cuatro cosas por pantalla:
 - que la ultima fila del teclado quede siempre por encima de la banda de auspiciantes.
 
 Resoluciones cubiertas: **1080x1920** y **1440x2560** (totem vertical), **1920x1080**,
-**1366x768**, **1280x800** y **768x1024**.
+**1366x768**, **1280x800** y **768x1024**. Pantallas recorridas: bienvenida, redes, grupos,
+estilos, cuenta regresiva, vista previa, formulario y formulario con el teclado abierto.
 
 Tamanos reales en el totem vertical (1080x1920): teclas de **56 px**, campos de 59 px,
 botones de 76 px. En QHD suben a 72 y 85 px.
@@ -642,7 +699,7 @@ numeros + 3 filas de letras). Si vas a tocar CSS, prueba esas dos primero.
 
 ---
 
-## 20. Que falta para tener el frontend completo
+## 22. Que falta para tener el frontend completo
 
 ### Hecho
 

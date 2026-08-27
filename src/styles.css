@@ -1195,3 +1195,252 @@ button:disabled { cursor: not-allowed; }
 @media (orientation: portrait) {
   .home-button { padding: 0.7rem 1.5rem 0.7rem 1rem; gap: 0.8rem; }
 }
+
+/* ============================================================
+   ESCENARIO DE CIRCO — solo en la bienvenida
+   Un totem quieto en una feria es invisible: esto es lo que hace
+   que se note desde lejos. Todo con transform y opacity, que la
+   GPU resuelve sola sin repintar.
+   ============================================================ */
+
+.circus {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Rayos de carpa girando despacio. */
+.circus__rays {
+  position: absolute;
+  /* Mas grande que la pantalla: al girar no debe verse ningun borde. */
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(224, 64, 58, 0.16) 0deg 6deg,
+    transparent 6deg 12deg
+  );
+  animation: circus-spin 90s linear infinite;
+}
+
+@keyframes circus-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Marquesina: cuatro tiras que enmarcan la pantalla. */
+.circus__marquee {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Deja libre la franja de arriba, donde estan los banderines. */
+.circus__marquee--top,
+.circus__marquee--bottom {
+  left: 2vmin;
+  right: 2vmin;
+  height: 0;
+}
+
+.circus__marquee--top { top: clamp(48px, 8.5vmin, 104px); }
+.circus__marquee--bottom { bottom: 2vmin; }
+
+.circus__marquee--left,
+.circus__marquee--right {
+  top: clamp(48px, 8.5vmin, 104px);
+  bottom: 2vmin;
+  width: 0;
+  flex-direction: column;
+}
+
+.circus__marquee--left { left: 2vmin; }
+.circus__marquee--right { right: 2vmin; }
+
+.circus__marquee span {
+  width: clamp(9px, 1.4vmin, 18px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--mustard);
+  box-shadow: 0 0 0 2px var(--ink);
+  animation: bulb 1.6s ease-in-out infinite;
+}
+
+@keyframes bulb {
+  0%, 100% { opacity: 0.28; transform: scale(0.82); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+
+/* Globos subiendo, con balanceo lateral. */
+.circus__balloon {
+  position: absolute;
+  bottom: -22vmin;
+  width: clamp(38px, 6vmin, 90px);
+  height: clamp(48px, 7.6vmin, 112px);
+  border-radius: 50% 50% 46% 46%;
+  box-shadow: inset -6px -8px 0 rgba(0, 0, 0, 0.14), 0 0 0 3px var(--ink);
+  animation-name: balloon-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* El hilito del globo. */
+.circus__balloon::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 2px;
+  height: clamp(24px, 4vmin, 60px);
+  background: var(--ink);
+  opacity: 0.5;
+}
+
+@keyframes balloon-rise {
+  0%   { transform: translateY(0) translateX(0) rotate(-4deg); opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { transform: translateY(-65vh) translateX(3vw) rotate(5deg); }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-130vh) translateX(-2vw) rotate(-3deg); opacity: 0; }
+}
+
+/* Confeti cayendo y girando. */
+.circus__confetti {
+  position: absolute;
+  top: -6vmin;
+  width: clamp(8px, 1.2vmin, 16px);
+  height: clamp(14px, 2vmin, 26px);
+  border-radius: 3px;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  8%   { opacity: 0.9; }
+  92%  { opacity: 0.9; }
+  100% { transform: translateY(105vh) rotate(540deg); opacity: 0; }
+}
+
+/* El contenido de la bienvenida va POR ENCIMA del circo. */
+.screen--welcome > *:not(.circus) { position: relative; z-index: 1; }
+
+/* El titulo se balancea, como un cartel colgado. */
+.screen--welcome .brand {
+  animation: sign-swing 4.5s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+@keyframes sign-swing {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(1.5deg); }
+}
+
+.screen--welcome .brand__sub {
+  animation: sign-swing 4.5s ease-in-out infinite reverse;
+}
+
+/* ---------------- enlace secundario ---------------- */
+
+.link-button {
+  font-family: Bungee, Impact, sans-serif;
+  font-size: clamp(0.7rem, 1.5vmin, 1.2rem);
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  border-bottom: calc(var(--line) * 0.6) solid var(--ink);
+  /* Aunque sea secundario se toca con el dedo: nunca por debajo de
+     44 px de alto o la gente falla el toque y cree que no funciona. */
+  padding: 0.75em 1.4em;
+  min-height: 46px;
+  cursor: pointer;
+}
+
+@media (orientation: portrait) {
+  .link-button { padding: 1em 2em; min-height: 60px; }
+}
+
+/* ============================================================
+   CONOCE NODO — la web y las redes, en codigos QR
+   ============================================================ */
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(130px, 15vw, 230px), 1fr));
+  gap: clamp(0.8rem, 2.2vmin, 1.8rem);
+  width: min(1400px, 100%);
+}
+
+.social-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.6rem;
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  border-radius: 14px;
+  box-shadow: calc(var(--line) * 1.4) calc(var(--line) * 1.4) 0 var(--ink);
+  overflow: hidden;
+}
+
+.social-card:nth-child(odd) { transform: rotate(-1.2deg); }
+.social-card:nth-child(even) { transform: rotate(1.2deg); }
+
+.social-card__top {
+  width: 100%;
+  padding: 0.45em 0;
+  font-family: Bungee, Impact, sans-serif;
+  font-size: clamp(0.7rem, 1.5vmin, 1.2rem);
+  color: #fff;
+  text-align: center;
+  border-bottom: var(--line) solid var(--ink);
+}
+
+/* Fondo blanco bajo el QR: sobre el papel crema algunos lectores
+   fallan, y un QR que no lee es un QR que no existe. */
+.social-card__qr {
+  width: 78%;
+  aspect-ratio: 1;
+  margin-top: 0.5rem;
+  padding: 6px;
+  background: #fff;
+  border-radius: 6px;
+  display: block;
+}
+
+.social-card__handle {
+  font-size: clamp(0.65rem, 1.3vmin, 1rem);
+  opacity: 0.75;
+}
+
+/* QR de NODO en la pantalla final. Pequeno: la protagonista es la
+   confirmacion, esto es una invitacion, no un anuncio. */
+.success__qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.success__qr img {
+  width: clamp(80px, 12vmin, 160px);
+  aspect-ratio: 1;
+  padding: 5px;
+  background: #fff;
+  border: calc(var(--line) * 0.7) solid var(--ink);
+  border-radius: 8px;
+}
+
+.success__qr span {
+  font-family: Bungee, Impact, sans-serif;
+  font-size: clamp(0.6rem, 1.25vmin, 1rem);
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}

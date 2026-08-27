@@ -6,6 +6,7 @@ import CountdownScreen from './screens/CountdownScreen.jsx';
 import PreviewScreen from './screens/PreviewScreen.jsx';
 import UserDataScreen from './screens/UserDataScreen.jsx';
 import GroupScreen from './screens/GroupScreen.jsx';
+import SocialScreen from './screens/SocialScreen.jsx';
 import StyleScreen from './screens/StyleScreen.jsx';
 import SendingScreen from './screens/SendingScreen.jsx';
 import ProcessingScreen from './screens/ProcessingScreen.jsx';
@@ -44,6 +45,7 @@ import {
  */
 const SCREENS = {
   WELCOME: 'WELCOME',
+  SOCIAL: 'SOCIAL',
   GROUP: 'GROUP',
   STYLE: 'STYLE',
   COUNTDOWN: 'COUNTDOWN',
@@ -79,6 +81,7 @@ const NO_HOME = [SCREENS.WELCOME, SCREENS.SENDING, SCREENS.SUCCESS];
 
 /** Pantallas donde el usuario puede quedarse quieto y abandonar el totem. */
 const IDLE_WATCHED = [
+  SCREENS.SOCIAL,
   SCREENS.GROUP,
   SCREENS.STYLE,
   SCREENS.COUNTDOWN,
@@ -256,6 +259,9 @@ export default function App() {
 
   function renderScreen() {
     switch (screen) {
+      case SCREENS.SOCIAL:
+        return <SocialScreen onBack={resetSession} />;
+
       case SCREENS.GROUP:
         return <GroupScreen onSelect={handleGroupSelect} onBack={resetSession} />;
 
@@ -323,7 +329,9 @@ export default function App() {
 
       case SCREENS.WELCOME:
       default:
-        return <Welcome onStart={handleStart} />;
+        return (
+          <Welcome onStart={handleStart} onSocial={() => setScreen(SCREENS.SOCIAL)} />
+        );
     }
   }
 }
