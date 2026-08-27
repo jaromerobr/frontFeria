@@ -1,6 +1,7 @@
 import Screen from '../components/Screen.jsx';
 import BigButton from '../components/BigButton.jsx';
 import CircusStage from '../components/CircusStage.jsx';
+import SocialStrip from '../components/SocialStrip.jsx';
 import { BRAND } from '../config.js';
 
 export default function Welcome({ onStart, onSocial }) {
@@ -24,9 +25,9 @@ export default function Welcome({ onStart, onSocial }) {
         Comenzar
       </BigButton>
 
-      <button className="link-button" type="button" onClick={onSocial}>
-        Conoce {BRAND.footer}
-      </button>
+      {/* Las redes van a la vista, no detras de un boton: en una feria
+          la gente pasa caminando y lo que no se ve no existe. */}
+      <SocialStrip onOpen={onSocial} />
 
       <p className="welcome__foot">Presentado por {BRAND.footer}</p>
     </Screen>

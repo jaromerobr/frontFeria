@@ -602,6 +602,9 @@ se note desde diez metros:
 
 - **rayos de carpa** girando despacio (90 s por vuelta),
 - **50 bombillas** de marquesina enmarcando la pantalla, encendiendose en cadena,
+- **banderines** colgados de una cuerda, ondeando como una ola: cada uno con su desfase y su
+  duracion, moviendose en tres ejes a la vez (giro, estiron e inclinacion). Con un solo eje
+  se ve como un parpadeo; con los tres parece viento,
 - **globos** que suben con balanceo,
 - **confeti** cayendo y girando,
 - el **titulo** balanceandose como un cartel colgado.
@@ -622,9 +625,16 @@ Todo se apaga solo si el sistema pide menos movimiento (`prefers-reduced-motion`
 
 ## 19. Conoce NODO: la web y las redes
 
-Pantalla propia, a la que se llega desde la bienvenida ([SocialScreen.jsx](src/screens/SocialScreen.jsx)),
-mas el QR de la web en la pantalla de exito, que es el mejor momento: la persona acaba de
-recibir algo que le gusto y todavia tiene el celular en la mano.
+Los cinco codigos QR estan **a la vista en la bienvenida**
+([SocialStrip.jsx](src/components/SocialStrip.jsx)), no escondidos detras de un boton: el
+totem esta en una feria, la gente pasa caminando, y **lo que no se ve no existe**. Quien
+quiera puede escanear sin llegar a usar el totem.
+
+Al tocar la tira se abre la pantalla completa
+([SocialScreen.jsx](src/screens/SocialScreen.jsx)) con los codigos mas grandes, para quien
+prefiera acercarse con calma. Y el QR de la web esta tambien en la pantalla de exito, que
+es el mejor momento: la persona acaba de recibir algo que le gusto y todavia tiene el
+celular en la mano.
 
 **Son codigos QR, no botones.** En un totem un boton a Facebook abre la red dentro del
 navegador del kiosco y deja a la persona atrapada en una pagina que no es la nuestra; al
@@ -644,6 +654,19 @@ npm run qr
 
 Detalle que importa: el QR va sobre **fondo blanco**, no sobre el papel crema. Algunos
 lectores fallan con poco contraste, y un QR que no se lee es un QR que no existe.
+
+### Tamanos medidos
+
+| Resolucion | QR de la bienvenida | Boton Comenzar | Titulo |
+|---|---|---|---|
+| 1080x1920 (totem) | 164 px | 380x122 | 828 px de ancho |
+| 1440x2560 (totem QHD) | 213 px | 456x153 | 1033 px |
+| 1920x1080 | 120 px | 311x103 | 654 px |
+| 1366x768 y menores | 97 px | 221x73 | 465 px |
+
+En vertical **todo se escala con el ancho (`vw`), no con `vmin`**. Con `vmin` una pantalla
+de 1080x1920 usa el lado corto y el contenido queda diminuto en el centro con medio metro
+de fondo vacio alrededor. Es el error clasico al pasar de monitor horizontal a totem.
 
 ---
 
