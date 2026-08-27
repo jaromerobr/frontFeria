@@ -9,6 +9,8 @@ Funciona **completa sin backend** (modo `fake`) y **sin camara** (modo `demo`).
 
 > **Backend:** todo lo que hace falta para conectarlo esta en **[INTEGRACION.md](INTEGRACION.md)**.
 > Es un solo documento, no hay que leer el resto del proyecto.
+> El generador de imagenes (`POST /image-generation/upload`) **ya esta implementado**
+> contra el contrato real; falta el endpoint del envio por correo.
 
 ---
 

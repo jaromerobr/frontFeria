@@ -2,9 +2,9 @@
  * ============================================================
  *  GENERACION DE LA IMAGEN
  * ------------------------------------------------------------
- *  Este es el punto donde entra la IA (Gemini). La UI solo llama:
+ *  Aqui entra la IA. La UI solo llama:
  *
- *      const foto = await generatePhoto(shot, style)
+ *      const foto = await generatePhoto(shot, style, group)
  *
  *  y no sabe ni le importa si la imagen la genero un modelo o el
  *  filtro local. Eso permite dos cosas:
@@ -14,12 +14,41 @@
  *      tirado: cae solo al filtro local y la fila sigue avanzando.
  *      Una feria con fotos feas es mejor que una feria detenida.
  *
- *  El contrato del endpoint esta en INTEGRACION.md.
+ *  ------------------------------------------------------------
+ *  CONTRATO REAL DEL BACKEND (el que paso el equipo):
+ *
+ *      POST {API_BASE_URL}/image-generation/upload
+ *      Content-Type: multipart/form-data
+ *
+ *        prompt          (obligatorio) descripcion para el modelo
+ *        image           (archivo)     la foto tomada en el totem
+ *        provider        'gemini' | 'qwen'
+ *        model           ej. 'qwen-image-3.0'
+ *        negativePrompt  lo que no debe aparecer
+ *        aspectRatio     '1:1' | '16:9' | '9:16' | '3:4' | '4:3'
+ *        size            ej. '1024*1024'
+ *
+ *  Los nombres de los campos son los del DTO del backend, no los
+ *  nuestros: es su endpoint, manda su contrato.
+ *
+ *  OJO: NestJS suele validar con `forbidNonWhitelisted`, que rechaza
+ *  con 400 cualquier campo que no este en el DTO. Por eso NO se
+ *  mandan `styleId` ni `groupId` salvo que se activen a proposito
+ *  con VITE_AI_SEND_METADATA=true (ver config.js).
  * ============================================================
  */
 
-import { AI_MODE, API_BASE_URL, AI_TIMEOUT_MS } from '../config.js';
-import { styleFields } from '../photoStyles.js';
+import {
+  AI_MODE,
+  AI_ENDPOINT,
+  AI_MODEL,
+  AI_PROVIDER,
+  AI_SEND_METADATA,
+  AI_SIZE,
+  AI_TIMEOUT_MS,
+  API_BASE_URL,
+} from '../config.js';
+import { getPrompt, NEGATIVE_PROMPT } from '../photoStyles.js';
 import { applyPhotoEffect } from './photoEffect.js';
 
 /**
@@ -44,54 +73,112 @@ export async function generatePhoto(shot, style, group) {
   }
 }
 
-/**
- * POST {API_BASE_URL}/api/generate   (multipart/form-data)
- *
- *   photo          la foto tomada (archivo jpeg)
- *   styleId        identificador del estilo
- *   groupId        'personal' | 'pareja' | 'familia' | 'ninos'
- *   styleMode      'image-to-image'
- *   stylePrompt    prompt completo: ya incluye la instruccion de usar la
- *                  foto como base y cuanta gente hay en ella
- *   styleNegative  lo que el modelo no debe hacer
- *   styleStrength  cuanto respetar la foto original (0 a 1)
- *
- * Respuesta aceptada, cualquiera de las dos:
- *   - 200 con Content-Type: image/*  y la imagen en el cuerpo
- *   - 200 con JSON { "image": "data:image/jpeg;base64,..." }
- */
 async function requestGeneration(shot, style, group) {
+  const blob = await asBlob(shot);
+
   const form = new FormData();
-  form.append('photo', await asBlob(shot), 'photo.jpg');
-  Object.entries(styleFields(style, group)).forEach(([k, v]) => form.append(k, String(v)));
+  form.append('prompt', getPrompt(style, group));
+  form.append('image', blob, 'foto.jpg');
+  form.append('negativePrompt', NEGATIVE_PROMPT);
+  if (AI_PROVIDER) form.append('provider', AI_PROVIDER);
+  if (AI_MODEL) form.append('model', AI_MODEL);
+  if (AI_SIZE) form.append('size', AI_SIZE);
+
+  // La proporcion sale de la foto de verdad, no de un valor fijo: el
+  // totem es vertical y recorta la camara a lo que se ve en pantalla,
+  // asi que pedir 1:1 devolveria a la gente estirada o cortada.
+  const ratio = await aspectRatioOf(shot);
+  if (ratio) form.append('aspectRatio', ratio);
+
+  // Solo si el backend acepta campos extra (ver cabecera del archivo).
+  if (AI_SEND_METADATA) {
+    form.append('styleId', style.id);
+    form.append('groupId', group.id);
+  }
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), AI_TIMEOUT_MS);
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/generate`, {
+    const res = await fetch(`${API_BASE_URL}${AI_ENDPOINT}`, {
       method: 'POST',
       body: form,
       signal: ctrl.signal,
     });
 
-    if (!res.ok) throw new Error(`El generador respondio ${res.status}`);
-
-    const contentType = res.headers.get('content-type') ?? '';
-
-    if (contentType.includes('application/json')) {
-      const body = await res.json();
-      if (!body.image) throw new Error('La respuesta no traia imagen');
-      const blob = await (await fetch(body.image)).blob();
-      return { dataUrl: body.image, blob };
+    if (!res.ok) {
+      const detalle = await res.text().catch(() => '');
+      throw new Error(`El generador respondio ${res.status}. ${detalle.slice(0, 200)}`);
     }
 
-    const blob = await res.blob();
-    return { dataUrl: await blobToDataUrl(blob), blob };
+    return await readImage(res);
   } finally {
     clearTimeout(timer);
   }
 }
+
+/**
+ * Lee la imagen venga como venga.
+ *
+ * Todavia no esta confirmado que devuelve el backend, asi que se
+ * aceptan las formas habituales en vez de apostar por una: binario,
+ * dataURL, base64 pelado o una URL. Cuando se confirme se puede
+ * recortar, pero mientras tanto esto evita una sorpresa el dia de la
+ * integracion.
+ */
+async function readImage(res) {
+  const tipo = res.headers.get('content-type') ?? '';
+
+  if (tipo.startsWith('image/')) {
+    const blob = await res.blob();
+    return { dataUrl: await blobToDataUrl(blob), blob };
+  }
+
+  const body = await res.json();
+  const valor =
+    body.image ??
+    body.imageUrl ??
+    body.url ??
+    body.b64_json ??
+    body.data?.url ??
+    body.data?.image ??
+    (Array.isArray(body.data) ? body.data[0]?.url ?? body.data[0]?.b64_json : null);
+
+  if (!valor) {
+    throw new Error(`La respuesta no traia imagen: ${JSON.stringify(body).slice(0, 200)}`);
+  }
+
+  // base64 pelado, sin el prefijo data:
+  const src = /^[A-Za-z0-9+/=]+$/.test(valor.slice(0, 60))
+    ? `data:image/jpeg;base64,${valor}`
+    : valor;
+
+  const blob = await (await fetch(src)).blob();
+  return { dataUrl: src.startsWith('data:') ? src : await blobToDataUrl(blob), blob };
+}
+
+/** La proporcion permitida mas parecida a la de la foto tomada. */
+async function aspectRatioOf(shot) {
+  const permitidas = [
+    ['1:1', 1],
+    ['16:9', 16 / 9],
+    ['9:16', 9 / 16],
+    ['4:3', 4 / 3],
+    ['3:4', 3 / 4],
+  ];
+
+  try {
+    const img = await loadImage(shot.dataUrl);
+    const real = img.width / img.height;
+    return permitidas.reduce((mejor, actual) =>
+      Math.abs(actual[1] - real) < Math.abs(mejor[1] - real) ? actual : mejor,
+    )[0];
+  } catch {
+    return null; // si falla, que decida el backend
+  }
+}
+
+/* ---------------- helpers ---------------- */
 
 async function asBlob(shot) {
   if (shot.blob) return shot.blob;
@@ -104,5 +191,14 @@ function blobToDataUrl(blob) {
     fr.onload = () => resolve(fr.result);
     fr.onerror = reject;
     fr.readAsDataURL(blob);
+  });
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
   });
 }

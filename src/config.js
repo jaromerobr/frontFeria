@@ -49,7 +49,7 @@ export const CAMERA_SERVICE_URL = env.VITE_CAMERA_SERVICE_URL ?? 'http://localho
 export const API_MODE = env.VITE_API_MODE ?? 'fake';
 
 /** Base del backend del companero. Ej: http://192.168.1.50:8080 */
-export const API_BASE_URL = env.VITE_API_BASE_URL ?? 'http://localhost:8080';
+export const API_BASE_URL = env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
 /**
  * Estrategia de envio de la foto. Acordar con backend.
@@ -89,6 +89,28 @@ export const AI_MODE = env.VITE_AI_MODE ?? 'off';
  * nadie parado un minuto y medio frente a la pantalla.
  */
 export const AI_TIMEOUT_MS = Number(env.VITE_AI_TIMEOUT_MS ?? 60_000);
+
+/** Ruta del generador en el backend (la que paso el equipo). */
+export const AI_ENDPOINT = env.VITE_AI_ENDPOINT ?? '/image-generation/upload';
+
+/** Motor que usa el backend: 'gemini' o 'qwen'. Vacio = que decida el. */
+export const AI_PROVIDER = env.VITE_AI_PROVIDER ?? '';
+
+/** Modelo concreto, ej. 'qwen-image-3.0'. Vacio = el que tenga por defecto. */
+export const AI_MODEL = env.VITE_AI_MODEL ?? '';
+
+/** Resolucion pedida, ej. '1024*1024'. Vacio = que decida el backend. */
+export const AI_SIZE = env.VITE_AI_SIZE ?? '';
+
+/**
+ * Mandar tambien styleId y groupId.
+ *
+ * Apagado por defecto: el DTO del backend no los tiene, y NestJS con
+ * `forbidNonWhitelisted` rechaza con 400 cualquier campo de mas. Se
+ * enciende solo si el backend confirma que los acepta y los quiere para
+ * sus estadisticas.
+ */
+export const AI_SEND_METADATA = (env.VITE_AI_SEND_METADATA ?? 'false') === 'true';
 
 /** Segundos tras los cuales la pantalla de espera admite que va lenta. */
 export const PROCESSING_SLOW_SECONDS = Number(env.VITE_PROCESSING_SLOW_SECONDS ?? 18);
