@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { claimPhoto, fetchPhoto, readPhotoId } from './downloadApi.js';
 import { BRAND, CONSENT_TEXT, PRIVACY_TEXT } from '../config.js';
 import { asset } from '../assets.js';
@@ -31,6 +31,25 @@ export default function DownloadApp() {
   const [datos, setDatos] = useState({ name: '', email: '', phone: '' });
   const [acepta, setAcepta] = useState(false);
   const [fallos, setFallos] = useState({});
+
+  /**
+   * En un celular la foto ocupa toda la pantalla y el formulario queda
+   * debajo de la linea de flote: mucha gente no se da cuenta de que hay
+   * que bajar y se queda mirando su foto sin descargarla.
+   *
+   * El aviso desaparece en cuanto la persona baja, para no repetir algo
+   * que ya entendio.
+   */
+  const [haBajado, setHaBajado] = useState(false);
+  const tarjeta = useRef(null);
+
+  useEffect(() => {
+    const alBajar = () => {
+      if (window.scrollY > 40) setHaBajado(true);
+    };
+    window.addEventListener('scroll', alBajar, { passive: true });
+    return () => window.removeEventListener('scroll', alBajar);
+  }, []);
 
   useEffect(() => {
     if (!id) {
@@ -68,6 +87,12 @@ export default function DownloadApp() {
       });
       setDescarga(downloadUrl);
       setEstado('hecho');
+      // El boton de descarga aparece donde estaba el formulario, que
+      // puede quedar fuera de la vista tras cerrarse el teclado. Se
+      // lleva la vista hasta el, o la persona cree que no paso nada.
+      setTimeout(() => {
+        tarjeta.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
     } catch (err) {
       setError(err.message);
       setEstado('listo'); // se queda en el formulario para reintentar
@@ -94,8 +119,12 @@ export default function DownloadApp() {
         <>
           <img className="dl__photo" src={foto.previewUrl} alt="Tu foto de la feria" />
 
+          {estado !== 'hecho' && !haBajado && (
+            <p className="dl__bajar">Baja para descargar tu foto</p>
+          )}
+
           {estado === 'hecho' ? (
-            <div className="dl__card">
+            <div className="dl__card" ref={tarjeta}>
               <h1 className="dl__title">Listo, es tuya</h1>
               <p className="dl__msg">Tambien te la enviamos al correo.</p>
               <a className="dl__button" href={descarga} download="feria-de-loja.jpg">
@@ -103,7 +132,7 @@ export default function DownloadApp() {
               </a>
             </div>
           ) : (
-            <form className="dl__card" onSubmit={enviar} noValidate>
+            <form className="dl__card" onSubmit={enviar} noValidate ref={tarjeta}>
               <h1 className="dl__title">Completa para descargar</h1>
 
               <Campo
