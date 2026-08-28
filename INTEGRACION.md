@@ -329,6 +329,11 @@ Content-Type: application/json
 Aqui es donde el backend **guarda el lead y dispara el correo**. Los tres campos son
 obligatorios del lado de la pagina, asi que siempre llegan llenos.
 
+`consentText` no es un adorno: llega el **texto completo que se le mostro a la persona**,
+incluido el aviso de la Ley Organica de Proteccion de Datos Personales. Guardalo tal cual
+junto al registro. Un `consent: true` a secas no prueba nada si algun dia alguien pregunta
+a que dio permiso.
+
 Si algo falla, responde con un mensaje legible; se muestra tal cual a la persona:
 
 ```json

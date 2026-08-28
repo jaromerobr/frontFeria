@@ -39,7 +39,13 @@
  * ============================================================
  */
 
-import { API_BASE_URL, API_MODE, DOWNLOAD_API_PATH, CONSENT_TEXT } from '../config.js';
+import {
+  API_BASE_URL,
+  API_MODE,
+  DOWNLOAD_API_PATH,
+  CONSENT_TEXT,
+  PRIVACY_TEXT,
+} from '../config.js';
 
 const base = () => `${API_BASE_URL}${DOWNLOAD_API_PATH}`;
 
@@ -81,7 +87,9 @@ export async function claimPhoto(id, datos) {
   const cuerpo = {
     ...datos,
     consent: true,
-    consentText: CONSENT_TEXT,
+    // Se guarda el texto COMPLETO que se le mostro, no solo la linea
+    // de la casilla: es lo unico que prueba a que dio permiso.
+    consentText: `${CONSENT_TEXT} ${PRIVACY_TEXT}`,
     consentAt: new Date().toISOString(),
   };
 

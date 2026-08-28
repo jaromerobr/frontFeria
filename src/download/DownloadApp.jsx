@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { claimPhoto, fetchPhoto, readPhotoId } from './downloadApi.js';
-import { BRAND, CONSENT_TEXT } from '../config.js';
+import { BRAND, CONSENT_TEXT, PRIVACY_TEXT } from '../config.js';
 import { asset } from '../assets.js';
 
 /**
@@ -132,7 +132,10 @@ export default function DownloadApp() {
                 autoComplete="tel"
               />
 
-              <label className="dl__consent">
+              {/* Sin esta casilla no se envia nada ni se descarga la
+                  foto: son datos personales de alguien que esta en la
+                  calle, no un tramite de formulario. */}
+              <label className={`dl__consent ${fallos.consent ? 'is-invalid' : ''}`}>
                 <input
                   type="checkbox"
                   checked={acepta}
@@ -141,6 +144,11 @@ export default function DownloadApp() {
                 <span>{CONSENT_TEXT}</span>
               </label>
               {fallos.consent && <span className="dl__error">{fallos.consent}</span>}
+
+              <details className="dl__legal">
+                <summary>Como usamos tus datos</summary>
+                <p>{PRIVACY_TEXT}</p>
+              </details>
 
               {error && <span className="dl__error">{error}</span>}
 

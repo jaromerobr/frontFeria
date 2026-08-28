@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import BigButton from './BigButton.jsx';
 import OnScreenKeyboard from './OnScreenKeyboard.jsx';
-import { CONSENT_TEXT } from '../config.js';
+import { CONSENT_TEXT, PRIVACY_TEXT } from '../config.js';
 
 const FIELDS = {
   name: { label: 'Nombre', layout: 'text' },
@@ -134,7 +134,7 @@ export default function UserForm({ onSubmit, onBack, onTypingChange }) {
       email: values.email.trim().toLowerCase(),
       phone: values.phone.trim(),
       consent: true,
-      consentText: CONSENT_TEXT,
+      consentText: `${CONSENT_TEXT} ${PRIVACY_TEXT}`,
       consentAt: new Date().toISOString(),
     });
   };
@@ -165,7 +165,10 @@ export default function UserForm({ onSubmit, onBack, onTypingChange }) {
           <span className="consent__box" aria-hidden="true">
             {consent ? '✓' : ''}
           </span>
-          <span className="consent__text">{CONSENT_TEXT}</span>
+          <span className="consent__text">
+            {CONSENT_TEXT}
+            <small className="consent__legal">{PRIVACY_TEXT}</small>
+          </span>
         </label>
         {errors.consent && <span className="field__error">{errors.consent}</span>}
 

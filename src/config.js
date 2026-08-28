@@ -185,15 +185,49 @@ export const DELIVERY_SECONDS = Number(env.VITE_DELIVERY_SECONDS ?? 60);
    ============================================================ */
 
 /**
- * Texto que la persona acepta antes de enviar. Se guarda junto con la
- * fecha y se manda al backend, para que quede constancia de QUE acepto
- * exactamente, no solo de que marco una casilla.
- * Ajustar con lo que diga la empresa; si hay politica de privacidad
- * publicada, mencionarla aqui.
+ * ============================================================
+ *  CONSENTIMIENTO Y PROTECCION DE DATOS
+ * ------------------------------------------------------------
+ *  Se piden correo y celular a personas en la calle, asi que la
+ *  casilla no es un tramite: sin ella no se envia el formulario
+ *  ni se entrega la foto.
+ *
+ *  Se guardan y se mandan al backend TRES cosas: que acepto
+ *  (`consent`), el TEXTO EXACTO que acepto (`consentText`) y
+ *  cuando (`consentAt`). Guardar solo un `true` no sirve de nada
+ *  si algun dia alguien pregunta a que dio permiso.
+ *
+ *  OJO: estos textos son una base razonable, NO una revision
+ *  legal. Antes de la feria conviene que alguien de NODO los
+ *  valide, sobre todo el plazo de conservacion y el correo de
+ *  contacto.
+ * ============================================================
  */
+
+/** Lo que va junto a la casilla. Corto, o nadie lo lee. */
 export const CONSENT_TEXT =
   env.VITE_CONSENT_TEXT ??
-  'Acepto que se use mi correo y celular unicamente para enviarme esta foto.';
+  'Acepto el tratamiento de mis datos para recibir esta foto.';
+
+/**
+ * El detalle legal, debajo de la casilla.
+ *
+ * Cubre lo que exige la Ley Organica de Proteccion de Datos
+ * Personales del Ecuador: quien es el responsable, para que se usan,
+ * cuanto se guardan y como se piden de vuelta o se borran.
+ */
+export const PRIVACY_TEXT =
+  env.VITE_PRIVACY_TEXT ??
+  'Conforme a la Ley Organica de Proteccion de Datos Personales del Ecuador, ' +
+    `${env.VITE_BRAND_FOOTER ?? 'NODO'} sera responsable de tus datos y los usara ` +
+    'unicamente para enviarte esta foto. No se comparten con terceros ni se usan ' +
+    'para publicidad sin tu permiso. Se conservan como maximo ' +
+    `${env.VITE_PRIVACY_RETENTION ?? '30 dias'} y luego se eliminan. Puedes pedir ` +
+    'acceso, rectificacion o eliminacion escribiendo a ' +
+    `${env.VITE_PRIVACY_CONTACT ?? 'info@nodo.com.ec'}.`;
+
+/** A donde escribir para ejercer los derechos sobre los datos. */
+export const PRIVACY_CONTACT = env.VITE_PRIVACY_CONTACT ?? 'info@nodo.com.ec';
 
 /* ============================================================
    COLA DE ENVIOS PENDIENTES (services/queue.js)
