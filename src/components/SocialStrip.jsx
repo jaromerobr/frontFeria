@@ -1,5 +1,6 @@
 import { SOCIAL_LINKS, qrPath } from '../social.js';
 import { BRAND } from '../config.js';
+import { asset } from '../assets.js';
 
 /**
  * Tira de codigos QR en la pantalla de bienvenida.
@@ -19,7 +20,7 @@ export default function SocialStrip({ onOpen }) {
       <span className="social-strip__items">
         {SOCIAL_LINKS.map((link) => (
           <span className="social-mini" key={link.id}>
-            <img className="social-mini__qr" src={qrPath(link.id)} alt={link.url} />
+            <img className="social-mini__qr" src={asset(qrPath(link.id))} alt={link.url} />
             <span className="social-mini__name" style={{ color: link.color }}>
               {link.name}
             </span>

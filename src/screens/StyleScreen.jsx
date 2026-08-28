@@ -4,6 +4,7 @@ import BigButton from '../components/BigButton.jsx';
 import { stylesForGroup } from '../photoStyles.js';
 import { renderStylePreview } from '../services/photoEffect.js';
 import { STYLE_SAMPLE_PHOTO } from '../config.js';
+import { asset } from '../assets.js';
 
 /**
  * Selector de estilo.
@@ -31,7 +32,7 @@ import { STYLE_SAMPLE_PHOTO } from '../config.js';
  */
 export default function StyleScreen({ group, sampleSrc, onSelect, onBack, currentId = null }) {
   const hasOwnPhoto = Boolean(sampleSrc);
-  const sample = sampleSrc || STYLE_SAMPLE_PHOTO;
+  const sample = sampleSrc || asset(STYLE_SAMPLE_PHOTO);
   const styles = stylesForGroup(group.id);
   const [previews, setPreviews] = useState({});
 
@@ -118,7 +119,7 @@ function StyleArt({ style, preview, preferReference }) {
   if (showReference) {
     return (
       <span className="style-card__art style-card__art--reference">
-        <img src={style.reference} alt="" onError={() => setRefFailed(true)} />
+        <img src={asset(style.reference)} alt="" onError={() => setRefFailed(true)} />
         <span className="style-card__badge">Ejemplo</span>
       </span>
     );

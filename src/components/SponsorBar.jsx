@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SPONSORS, SPONSOR_SCROLL_SECONDS } from '../sponsors.js';
+import { asset } from '../assets.js';
 
 /**
  * Banda de auspiciantes que se desplaza sin parar en el pie del totem.
@@ -32,7 +33,7 @@ function SponsorLogo({ sponsor }) {
 
   return (
     <span className="sponsor">
-      <img src={sponsor.logo} alt={sponsor.name} onError={() => setFailed(true)} />
+      <img src={asset(sponsor.logo)} alt={sponsor.name} onError={() => setFailed(true)} />
     </span>
   );
 }

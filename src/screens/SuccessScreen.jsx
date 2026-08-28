@@ -2,6 +2,7 @@ import Screen from '../components/Screen.jsx';
 import { useCountdown } from '../hooks/useCountdown.js';
 import { SUCCESS_SCREEN_SECONDS, BRAND } from '../config.js';
 import { MAIN_LINK, qrPath } from '../social.js';
+import { asset } from '../assets.js';
 
 export default function SuccessScreen({ onDone, queued = false }) {
   const left = useCountdown(SUCCESS_SCREEN_SECONDS, onDone);
@@ -20,7 +21,7 @@ export default function SuccessScreen({ onDone, queued = false }) {
       {/* El mejor momento para ofrecer el contacto: la persona acaba de
           recibir algo que le gusto y todavia tiene el celular en la mano. */}
       <div className="success__qr">
-        <img src={qrPath(MAIN_LINK.id)} alt={MAIN_LINK.url} />
+        <img src={asset(qrPath(MAIN_LINK.id))} alt={MAIN_LINK.url} />
         <span>Conoce mas de {BRAND.footer}</span>
       </div>
       <p className="hint">Volviendo al inicio en {Math.max(left, 0)}s</p>

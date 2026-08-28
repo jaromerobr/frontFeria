@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import './styles.css';
 
 import Welcome from './screens/Welcome.jsx';
 import CountdownScreen from './screens/CountdownScreen.jsx';

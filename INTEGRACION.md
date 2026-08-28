@@ -8,10 +8,16 @@ equipo y simula el envio.
 Hay **dos puntos de conexion, independientes entre si**. Se pueden hacer en cualquier
 orden, y cada uno funciona sin el otro:
 
-| | Endpoint | Cuando ocurre | Que hace |
+| | Endpoint | Quien lo llama | Que hace |
 |---|---|---|---|
-| **A** | `POST /image-generation/upload` | Justo despues de la foto | Genera la imagen y la devuelve para mostrarla en pantalla. **Ya implementado** contra el DTO real |
-| **B** | `POST /api/photos` | Cuando la persona da sus datos | Guarda y manda la foto al correo. **Pendiente**: falta que me pases el endpoint |
+| **A** | `POST /image-generation/upload` | El totem, tras la foto | Genera la imagen. **Ya implementado** contra el DTO real |
+| **B** | `POST /feria/photos` | El totem, al aceptar | Guarda la foto y devuelve un `id` |
+| **C** | `GET /feria/photos/:id` | El celular | Devuelve la foto para mostrarla |
+| **D** | `POST /feria/photos/:id/claim` | El celular | Guarda los datos, manda el correo y devuelve el enlace de descarga |
+
+**B, C y D son la entrega por QR**: el totem sube la foto y recibe un id, arma el QR con
+`https://nodo.com.ec/feria/?f=<id>`, y la persona abre eso en su celular. Toda esa parte
+del frontend **ya esta hecha**; falta el backend.
 
 No hay que tocar ninguna pantalla: solo levantar los endpoints y cambiar unas variables
 en el `.env` del totem.
@@ -253,3 +259,88 @@ todos sus campos.
 - [ ] `provider` y `model` definitivos: quien decide, el totem o el backend.
 - [ ] Si quieres `styleId` y `groupId` para estadisticas, hay que anadirlos al DTO.
 - [ ] CORS para el origen del totem.
+
+
+---
+
+## 10. Puntos B, C y D — la entrega por QR
+
+El totem sube la foto y muestra un QR. La persona lo escanea, abre la pagina en su celular,
+deja sus datos y descarga. **El frontend de las dos pantallas ya esta hecho**; hacen falta
+tres endpoints.
+
+### B. El totem sube la foto
+
+```http
+POST {API_BASE_URL}/feria/photos
+Content-Type: multipart/form-data
+
+image     la foto ya generada (jpeg)
+styleId, groupId, stylePrompt, ...   (los mismos campos del punto A)
+```
+
+Respuesta:
+
+```json
+{ "id": "AB12CD" }
+```
+
+Con el `id` basta: **el totem arma la URL con su propio dominio**
+(`https://nodo.com.ec/feria/?f=AB12CD`), asi que el backend no necesita saber donde esta
+publicada la pagina. Si prefieres devolver la URL completa, tambien vale: se acepta `url`
+o `photoUrl`.
+
+> El `id` **no puede ser secuencial**. Con `/f/1`, `/f/2` cualquiera navega las fotos de
+> los demas. Aleatorio de 6 a 8 caracteres.
+
+### C. El celular pide la foto
+
+```http
+GET {API_BASE_URL}/feria/photos/:id
+```
+
+```json
+{ "previewUrl": "https://...", "expiresAt": "2026-09-05T18:00:00Z" }
+```
+
+`404` si el id no existe o ya caduco: la pagina muestra "este enlace ya no esta
+disponible" en vez de un error tecnico.
+
+### D. El celular deja los datos y descarga
+
+```http
+POST {API_BASE_URL}/feria/photos/:id/claim
+Content-Type: application/json
+
+{
+  "name": "James Romero",
+  "email": "james@gmail.com",
+  "phone": "0999123456",
+  "consent": true,
+  "consentText": "Acepto que se use mi correo y celular unicamente para enviarme esta foto.",
+  "consentAt": "2026-08-27T21:14:03.921Z"
+}
+```
+
+```json
+{ "downloadUrl": "https://..." }
+```
+
+Aqui es donde el backend **guarda el lead y dispara el correo**. Los tres campos son
+obligatorios del lado de la pagina, asi que siempre llegan llenos.
+
+Si algo falla, responde con un mensaje legible; se muestra tal cual a la persona:
+
+```json
+{ "message": "Este enlace ya fue usado" }
+```
+
+### Cuatro cosas que decidir ahora y no en la feria
+
+1. **Caducidad.** Siete dias es razonable. Pasado eso, el enlace da 404 y la foto se borra.
+   Son fotos de gente, y de ninos en muchos casos.
+2. **CORS.** La pagina vive en `nodo.com.ec` y llama al backend. Si estan en dominios o
+   puertos distintos, hay que permitirlo o **todo falla sin explicacion**.
+3. **HTTPS.** Obligatorio: sin el, el navegador del totem no deja usar la camara.
+4. **Que se guarda y por cuanto.** Los datos son un lead para NODO, pero conviene tener
+   escrito cuanto tiempo se guardan.

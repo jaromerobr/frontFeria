@@ -159,14 +159,20 @@ export const PROCESSING_MIN_MS = Number(env.VITE_PROCESSING_MIN_MS ?? 900);
  */
 export const DELIVERY_MODE = env.VITE_DELIVERY ?? 'qr';
 
-/** Donde se sube la foto para obtener el enlace de descarga. */
-export const DOWNLOAD_ENDPOINT = env.VITE_DOWNLOAD_ENDPOINT ?? '/api/photos';
+/** Donde el totem sube la foto para obtener el enlace de descarga. */
+export const DOWNLOAD_ENDPOINT = env.VITE_DOWNLOAD_ENDPOINT ?? '/feria/photos';
 
 /**
- * Si el backend devuelve solo un id en vez de una URL, se arma con esto:
- *     {DOWNLOAD_BASE_URL}/{id}
+ * Direccion publica de esta misma app, la que va dentro del QR.
+ *
+ * Tiene que ser PUBLICA: el celular de la persona esta con datos
+ * moviles, no en el wifi del totem. Con una IP local (192.168.x.x) o
+ * localhost, el QR no abre nada. Es el error que hunde estos montajes.
  */
-export const DOWNLOAD_BASE_URL = env.VITE_DOWNLOAD_BASE_URL ?? '';
+export const PUBLIC_BASE_URL = env.VITE_PUBLIC_BASE_URL ?? 'https://nodo.com.ec/feria';
+
+/** Prefijo de los endpoints que usa la pagina de descarga. */
+export const DOWNLOAD_API_PATH = env.VITE_DOWNLOAD_API_PATH ?? '/feria';
 
 /** Nombre del campo del archivo al subir la foto (lo fija el backend). */
 export const DOWNLOAD_FILE_FIELD = env.VITE_DOWNLOAD_FILE_FIELD ?? 'image';

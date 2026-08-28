@@ -28,6 +28,7 @@
 
 import { PHOTO_EFFECT, PHOTO_FRAME, FACE_GUIDE, BRAND } from '../config.js';
 import { DEFAULT_STYLE } from '../photoStyles.js';
+import { asset } from '../assets.js';
 
 /** Ancho maximo de procesado. Mas que esto no se nota y cuesta el doble. */
 const MAX_WIDTH = 1200;
@@ -403,7 +404,7 @@ async function drawPaniniFrame(ctx, w, h) {
 
 /** Logo opcional en la esquina. Si no existe el archivo, no pasa nada. */
 async function drawCornerLogo(ctx, w, h, x, y, width) {
-  const logo = await loadImage('/logo.webp').catch(() => null);
+  const logo = await loadImage(asset('/logo.webp')).catch(() => null);
   if (!logo) return;
   const lh = width * (logo.height / logo.width);
   ctx.drawImage(logo, w - x - width, y, width, lh);

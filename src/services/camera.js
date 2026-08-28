@@ -19,6 +19,7 @@ import {
   CAMERA_SERVICE_URL,
   MIRROR_CAMERA,
 } from '../config.js';
+import { asset } from '../assets.js';
 
 let stream = null;
 let videoEl = null;
@@ -83,7 +84,7 @@ export async function capturePhoto() {
 async function captureDemo() {
   // Pequeno retardo para que se sienta como un disparo real.
   await new Promise((r) => setTimeout(r, 300));
-  const res = await fetch(DEMO_PHOTO_URL);
+  const res = await fetch(asset(DEMO_PHOTO_URL));
   const blob = await res.blob();
   const dataUrl = await blobToDataUrl(blob);
   return { dataUrl, blob };

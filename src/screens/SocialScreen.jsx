@@ -2,6 +2,7 @@ import Screen from '../components/Screen.jsx';
 import BigButton from '../components/BigButton.jsx';
 import { SOCIAL_LINKS, qrPath } from '../social.js';
 import { BRAND } from '../config.js';
+import { asset } from '../assets.js';
 
 /**
  * Conoce NODO: la web y las redes, en codigos QR.
@@ -25,7 +26,7 @@ export default function SocialScreen({ onBack }) {
             <span className="social-card__top" style={{ background: link.color }}>
               {link.name}
             </span>
-            <img className="social-card__qr" src={qrPath(link.id)} alt={link.url} />
+            <img className="social-card__qr" src={asset(qrPath(link.id))} alt={link.url} />
             <span className="social-card__handle">{link.handle}</span>
           </div>
         ))}

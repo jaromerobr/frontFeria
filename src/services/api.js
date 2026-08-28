@@ -19,8 +19,8 @@ import {
   API_TIMEOUT_MS,
   UPLOAD_STRATEGY,
   DOWNLOAD_ENDPOINT,
-  DOWNLOAD_BASE_URL,
   DOWNLOAD_FILE_FIELD,
+  PUBLIC_BASE_URL,
 } from '../config.js';
 import { styleFields } from '../photoStyles.js';
 
@@ -244,7 +244,7 @@ export async function publishForDownload({ photo, style, group }) {
       groupId: group?.id,
     });
     await new Promise((r) => setTimeout(r, 900));
-    return { url: `${DOWNLOAD_BASE_URL || 'https://nodo.com.ec/foto'}/demo-${Date.now()}` };
+    return { url: `${PUBLIC_BASE_URL}/?f=demo${Date.now().toString(36).slice(-6)}` };
   }
 
   const form = new FormData();
@@ -257,11 +257,10 @@ export async function publishForDownload({ photo, style, group }) {
   });
   const body = await parse(res);
 
-  const url =
-    body.url ??
-    body.photoUrl ??
-    body.downloadUrl ??
-    (body.id && DOWNLOAD_BASE_URL ? `${DOWNLOAD_BASE_URL}/${body.id}` : null);
+  // Con que el backend devuelva el id basta: la URL la arma el totem
+  // con su propio dominio publico. Asi el backend no necesita saber
+  // donde esta publicada la pagina.
+  const url = body.url ?? body.photoUrl ?? (body.id ? `${PUBLIC_BASE_URL}/?f=${body.id}` : null);
 
   if (!url) {
     throw new Error('El servidor no devolvio el enlace de descarga.');

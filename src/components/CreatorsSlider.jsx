@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CREATORS, CREATOR_SECONDS } from '../creators.js';
+import { asset } from '../assets.js';
 
 /**
  * Las empresas que hicieron el totem, rotando una a una.
@@ -51,7 +52,7 @@ function CreatorMark({ creator }) {
     return (
       <img
         className="creators__logo"
-        src={creator.logo}
+        src={asset(creator.logo)}
         alt={creator.name}
         onError={() => setSinLogo(true)}
       />

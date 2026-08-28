@@ -1,4 +1,5 @@
 import { BRAND } from '../config.js';
+import { asset } from '../assets.js';
 
 /**
  * Boton de inicio con el logo de NODO.
@@ -16,7 +17,7 @@ import { BRAND } from '../config.js';
 export default function HomeButton({ onClick }) {
   return (
     <button className="home-button" type="button" onClick={onClick} aria-label="Volver al inicio">
-      <img className="home-button__logo" src="/logo.webp" alt={BRAND.footer} />
+      <img className="home-button__logo" src={asset('/logo.webp')} alt={BRAND.footer} />
     </button>
   );
 }
