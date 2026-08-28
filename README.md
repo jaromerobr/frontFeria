@@ -7,6 +7,9 @@ la envia a su correo.
 
 Funciona **completa sin backend** (modo `fake`) y **sin camara** (modo `demo`).
 
+> **¿Primera vez aqui?** Empieza por **[CONTEXTO.md](CONTEXTO.md)**: que es el proyecto,
+> como esta hoy y que falta, en dos minutos de lectura.
+>
 > **Backend:** todo lo que hace falta para conectarlo esta en **[INTEGRACION.md](INTEGRACION.md)**.
 > Es un solo documento, no hay que leer el resto del proyecto.
 > El generador de imagenes (`POST /image-generation/upload`) **ya esta implementado**
