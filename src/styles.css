@@ -1797,7 +1797,7 @@ button:disabled { cursor: not-allowed; }
    ancho y bajo (198x50), asi que limitandolo por alto salia diminuto
    al lado de los nombres escritos en Bungee. */
 .creators__logo {
-  width: clamp(320px, 46vmin, 720px);
+  width: calc(clamp(320px, 46vmin, 720px) * var(--creator-scale, 1));
   max-width: 82vw;
   max-height: 26vh;
   height: auto;
@@ -1842,7 +1842,10 @@ button:disabled { cursor: not-allowed; }
 
 @media (orientation: portrait) {
   .creators__kicker { font-size: clamp(1rem, 2.2vw, 1.8rem); }
-  .creators__logo { width: clamp(420px, 70vw, 900px); max-height: 20vh; }
+  .creators__logo {
+    width: calc(clamp(420px, 70vw, 900px) * var(--creator-scale, 1));
+    max-height: 20vh;
+  }
   .creators__name { font-size: clamp(2.8rem, 11vw, 8rem); }
   .creators__slide { min-height: clamp(110px, 18vw, 300px); }
 

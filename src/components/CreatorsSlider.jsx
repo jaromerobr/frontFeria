@@ -54,6 +54,8 @@ function CreatorMark({ creator }) {
         className="creators__logo"
         src={asset(creator.logo)}
         alt={creator.name}
+        // Cada logo tiene su proporcion: `scale` los iguala a la vista.
+        style={{ '--creator-scale': creator.scale ?? 1 }}
         onError={() => setSinLogo(true)}
       />
     );
